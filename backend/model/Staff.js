@@ -10,7 +10,6 @@ const staffSchema = new Schema(
     },
     restaurantId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "Restaurant",
     },
   },
