@@ -1,24 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./pages/homePage";
+import Register from "./pages/registerPage";
+import Login from "./pages/loginPage";
+import StaffHomePage from "./pages/staffHomePage";
+import ProfilePage from "./pages/profilePage";
+import { useState } from "react";
+import { UserContext } from "./context/userContext";
 
 function App() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [contact, setContact] = useState("");
+  const [role, setrole] = useState("");
+  const [userId, setUserId] = useState("");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <UserContext.Provider
+      value={{
+        username,
+        setUsername,
+        password,
+        setPassword,
+        email,
+        setEmail,
+        contact,
+        setContact,
+        role,
+        setrole,
+        userId,
+        setUserId,
+      }}
+    >
+      <div>
+        <BrowserRouter>
+          <div>
+            <Routes>
+              <Route path="/" element={<Home></Home>} />
+              <Route
+                path="/staff/register"
+                element={<Register specificRole="staff"></Register>}
+              />
+              <Route
+                path="/user/register"
+                element={<Register specificRole="user"></Register>}
+              />
+              <Route path="/login" element={<Login></Login>} />
+              <Route path="/home" element={<Home></Home>} />
+              <Route
+                path="/staff/home"
+                element={<StaffHomePage></StaffHomePage>}
+              />
+              <Route path="/profile" element={<ProfilePage></ProfilePage>} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </div>
+    </UserContext.Provider>
   );
 }
 
