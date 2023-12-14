@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const restaurantTableSchema = new Schema({
   tableName: { type: String, required: true },
   tableQuantity: { type: Number, required: true },
-  tableStatus: { type: Boolean, default: false },
+  tableStatus: { type: String, required: true },
 });
 
 const chatbotSequenceSchema = new Schema({

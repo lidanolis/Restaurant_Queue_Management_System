@@ -20,6 +20,10 @@ const customerSchema = new Schema(
       required: true,
       ref: "User",
     },
+    restaurantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Restaurant",
+    },
     userPoints: { type: Number, default: 0 },
     userVouchers: [userVoucherSchema],
   },

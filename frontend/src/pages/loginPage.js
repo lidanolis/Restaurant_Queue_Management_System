@@ -3,10 +3,20 @@ import makeToast from "../toast";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/userContext";
 
-const LoginPage = () => {
+const LoginPage = ({ specificUse, setupSocket }) => {
+  var joining = specificUse;
+  console.log("here-" + joining);
   const navigate = useNavigate();
-  const { setUsername, setPassword, setEmail, setContact, setrole, setUserId } =
-    useContext(UserContext);
+  const {
+    setUsername,
+    setPassword,
+    setEmail,
+    setContact,
+    setrole,
+    setUserId,
+    restaurantId,
+    setRestaurantId,
+  } = useContext(UserContext);
   const [loginPassword, setloginPassword] = useState("");
   const [loginEmail, setloginEmail] = useState("");
 
@@ -41,6 +51,18 @@ const LoginPage = () => {
               setContact(json.contact);
               setrole(json.role);
               setUserId(json._id);
+              localStorage.setItem("CC_Token", json._id);
+              setupSocket();
+              if (json.role !== "user") {
+                const getRestaurantId = await fetch(
+                  `http://localhost:8000/staff/getStaff/${json._id}`
+                );
+                const resultJson = await getRestaurantId.json();
+                if (getRestaurantId.ok) {
+                  setRestaurantId(resultJson.restaurantId);
+                }
+                console.log(`Set Restaurant Id ${resultJson.restaurantId}`);
+              }
 
               console.log(`name: ${json.name}`);
               console.log(`password: ${json.password}`);
@@ -49,7 +71,17 @@ const LoginPage = () => {
               console.log(`role: ${json.role}`);
               console.log(`userId: ${json._id}`);
 
-              navigate("/staff/home");
+              if (json.role === "staff") {
+                navigate("/staff/home");
+              } else if (json.role === "admin") {
+                navigate("/admin/home");
+              } else {
+                if (joining === "join") {
+                  navigate(`/user/restaurant/${restaurantId}`);
+                } else {
+                  navigate("/user/home");
+                }
+              }
             }
           } catch (err) {
             console.log(err);

@@ -23,6 +23,9 @@ const bookingSchema = new Schema(
     tableName: {
       type: String,
     },
+    BookedTime: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

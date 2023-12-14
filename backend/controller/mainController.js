@@ -41,10 +41,12 @@ const login = async (req, res) => {
 const profile = async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
+    console.log("error id");
     return res.status(500).json({ mssg: "error" });
   }
   const json = await User.findOneAndUpdate({ _id: id }, { ...req.body });
   if (!json) {
+    console.log("error here");
     res.status(500).json({ mssg: "error" });
   }
   res.status(200).json(json);
