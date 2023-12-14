@@ -151,8 +151,12 @@ function ProfilePage() {
             onClick={() => {
               if (role === "staff") {
                 navigate("/staff/home");
+              } else if (role === "admin") {
+                navigate("/admin/home");
+              } else if (role === "user") {
+                navigate("/user/home");
               } else {
-                navigate("/login");
+                navigate("/home");
               }
             }}
           >
