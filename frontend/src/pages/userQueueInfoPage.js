@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import makeToast from "../toast";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/userContext";
-
+import { QueueManagementController } from "../controller/queueManageController";
 function UserQueueInfoPage() {
   const navigate = useNavigate();
   const {
@@ -14,6 +14,8 @@ function UserQueueInfoPage() {
     setInQueue,
     Book,
     setBook,
+    role,
+    setTimeWaited,
   } = useContext(UserContext);
   const [tableQuantity, setTableQuantity] = useState(0);
 
@@ -22,6 +24,20 @@ function UserQueueInfoPage() {
       return Number(value) > 0;
     }
     return false;
+  };
+
+  const assignSeat = async () => {
+    await QueueManagementController(restaurantId, socket, 1);
+  };
+
+  const checkStaffRoom = () => {
+    if (socket) {
+      socket.emit("checkRoom", {
+        restaurantId: restaurantId + "staff",
+        userId: userId,
+        actionType: "queueCheck",
+      });
+    }
   };
 
   const joinQueue = async () => {
@@ -51,6 +67,8 @@ function UserQueueInfoPage() {
     } else {
       console.log("Booked Table");
       setBook(json._id);
+      console.log("booked Time recorded-" + json.BookedTime);
+      setTimeWaited(json.BookedTime);
     }
   };
 
@@ -59,7 +77,8 @@ function UserQueueInfoPage() {
       joinQueue()
         .then(() => {
           makeToast("success", "Table Booked");
-          navigate("/user/home");
+          checkStaffRoom();
+          navigate("/user/customerGameSelectPage");
         })
         .catch((err) => {
           makeToast("error", err);
@@ -68,6 +87,37 @@ function UserQueueInfoPage() {
       makeToast("error", "Invalid Number");
     }
   };
+
+  useEffect(() => {
+    socket.on("getSeat", (message) => {
+      console.log("received the getSeat message");
+      console.log("userId from message:" + message.userId);
+      console.log("userId:" + userId);
+      console.log("restaurantId from message:" + message.restaurantId);
+      console.log("restaurantId:" + restaurantId);
+      if (message.userId === userId && role === "user") {
+        if (message.restaurantId === restaurantId) {
+          if (inQueue) {
+            setInQueue(false);
+            navigate(`/user/seatPage/${message.tableName}`);
+          }
+        }
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    socket.on("RoomStatusResult", (message) => {
+      if (message.userId === userId) {
+        if (
+          message.message === "available" &&
+          message.actionType === "queueCheck"
+        ) {
+          assignSeat();
+        }
+      }
+    });
+  }, []);
 
   return (
     <div className="card">

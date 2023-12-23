@@ -2,8 +2,9 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import makeToast from "../toast";
 import { UserContext } from "../context/userContext";
+import { QueueManagementController } from "../controller/queueManageController";
 
-function AdminTableManagePage({ managementFunction }) {
+function StaffTableManagePage({ managementFunction }) {
   const pageParams = useParams();
   const TableId = pageParams.id;
   const { restaurantId, socket } = useContext(UserContext);
@@ -14,27 +15,6 @@ function AdminTableManagePage({ managementFunction }) {
   const tableStatusRef = useRef("available");
   var duplivalue = undefined;
 
-  const removeTable = async () => {
-    const removeTableObject = {
-      tableName: TableId,
-    };
-    console.log("removeTableObject here:" + JSON.stringify(removeTableObject));
-    const manageRestaurantTables = await fetch(
-      `http://localhost:8000/staff/removeTable/${restaurantId}`,
-      {
-        method: "POST",
-        body: JSON.stringify(removeTableObject),
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-    const json = await manageRestaurantTables.json();
-    if (!manageRestaurantTables.ok) {
-      console.log("Invalid Credentials");
-    } else {
-      console.log(`Restaurant Tables Updated`);
-      makeToast("success", `Successful ${managementFunction} action`);
-    }
-  };
   const getRestaurantList = async () => {
     const getRestaurantId = await fetch(
       `http://localhost:8000/staff/getRestaurant/${restaurantId}`
@@ -101,13 +81,23 @@ function AdminTableManagePage({ managementFunction }) {
           if (!manageRestaurantTables.ok) {
             console.log("Invalid Credentials");
           } else {
+            if (
+              managementFunction !== "add" &&
+              newTableObject.tableStatus === "available"
+            ) {
+              console.log("assigning seat");
+              assignSeat();
+            }
             console.log(`Restaurant Tables Updated`);
             makeToast("success", `Successful ${managementFunction} action`);
-            navigate("/admin/viewTable");
+            navigate("/staff/viewTable");
           }
         }
       });
     }
+  };
+  const assignSeat = async () => {
+    await QueueManagementController(restaurantId, socket, 1);
   };
 
   const modifyTable = async () => {
@@ -131,12 +121,7 @@ function AdminTableManagePage({ managementFunction }) {
   };
   useEffect(() => {
     console.log("managementFunction:" + managementFunction);
-    if (managementFunction === "modify") {
-      modifyTable();
-    } else if (managementFunction === "remove") {
-      removeTable();
-      navigate("/admin/viewTable");
-    }
+    modifyTable();
   }, []);
   return (
     <div className="card">
@@ -152,7 +137,7 @@ function AdminTableManagePage({ managementFunction }) {
               setTableName(e.target.value);
             }}
             value={tableName}
-            {...(managementFunction === "modify" ? { readOnly: true } : {})}
+            readOnly
           ></input>
         </div>
         <div className="inputGroup">
@@ -165,6 +150,7 @@ function AdminTableManagePage({ managementFunction }) {
               setTableQuantity(e.target.value);
             }}
             value={tableQuantity}
+            readOnly
           ></input>
         </div>
         <div className="inputGroup">
@@ -188,7 +174,7 @@ function AdminTableManagePage({ managementFunction }) {
           <button
             className="btn btn-warning"
             onClick={() => {
-              navigate("/admin/viewTable");
+              navigate("/staff/viewTable");
             }}
           >
             Back
@@ -199,4 +185,4 @@ function AdminTableManagePage({ managementFunction }) {
   );
 }
 
-export default AdminTableManagePage;
+export default StaffTableManagePage;

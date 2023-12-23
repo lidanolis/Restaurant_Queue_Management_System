@@ -32,7 +32,7 @@ mongoose
         methods: ["GET", "POST", "PUT", "DELETE"],
       },
     });
-
+    const namespace = io.of("/");
     io.use(async (socket, next) => {
       try {
         const token = socket.handshake.query.token;
@@ -54,11 +54,40 @@ mongoose
 
       socket.on("joinRoom", ({ restaurantId }) => {
         socket.join(restaurantId);
-        console.log("A user joined the restaurant " + restaurantId);
+        console.log("A user joined the restaurant with the ID " + restaurantId);
       });
       socket.on("leaveRoom", ({ restaurantId }) => {
         socket.leave(restaurantId);
         console.log("A user Left the restaurant");
+      });
+      socket.on("checkRoom", ({ restaurantId, userId, actionType }) => {
+        console.log("triggered checkRoom socket of actionType: " + actionType);
+        const roomSockets =
+          namespace.adapter.rooms.get(restaurantId) || new Set();
+
+        if (roomSockets.size > 0) {
+          console.log("occupied Room");
+          io.emit("RoomStatusResult", {
+            message: "occupied",
+            userId: userId,
+            actionType: actionType,
+          });
+        } else {
+          console.log("Available Room");
+          io.emit("RoomStatusResult", {
+            message: "available",
+            userId: userId,
+            actionType: actionType,
+          });
+        }
+      });
+      socket.on("assignSeat", ({ restaurantId, userId, tableName }) => {
+        console.log("emited assigned seat");
+        io.to(restaurantId).emit("getSeat", {
+          restaurantId: restaurantId,
+          userId: userId,
+          tableName: tableName,
+        });
       });
     });
   })

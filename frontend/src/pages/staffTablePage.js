@@ -2,8 +2,8 @@ import React, { useEffect, useState, useContext } from "react";
 import makeToast from "../toast";
 import { useNavigate, Link } from "react-router-dom";
 import { UserContext } from "../context/userContext";
-
-function AdminTablePage() {
+import { QueueManagementController } from "../controller/queueManageController";
+function StaffTablePage() {
   const navigate = useNavigate();
   const { restaurantId, socket } = useContext(UserContext);
 
@@ -33,10 +33,20 @@ function AdminTablePage() {
   };
   const quitQueue = () => {
     if (socket) {
-      const adminRoomID = restaurantId + "admin";
-      socket.emit("leaveRoom", { restaurantId: adminRoomID });
+      const staffRoomId = restaurantId + "staff";
+      socket.emit("leaveRoom", { restaurantId: staffRoomId });
     }
   };
+  const assignSeat = async (numberOfTimes) => {
+    await QueueManagementController(restaurantId, socket, numberOfTimes);
+  };
+  useEffect(() => {
+    const staffRoomId = restaurantId + "staff";
+    console.log("staffRoomId " + staffRoomId);
+    if (socket) {
+      socket.emit("joinRoom", { restaurantId: staffRoomId });
+    }
+  }, []);
   useEffect(() => {
     getRestaurantList();
   }, []);
@@ -50,6 +60,7 @@ function AdminTablePage() {
             <th scope="col">Restaurant Table</th>
             <th scope="col">Table Quantity</th>
             <th scope="col">Table Status</th>
+            <th scope="col">Occupancy</th>
             <th scope="col"></th>
             <th scope="col"></th>
           </tr>
@@ -61,44 +72,48 @@ function AdminTablePage() {
               <td>{item.tableName}</td>
               <td>{item.tableQuantity}</td>
               <td>{item.tableStatus}</td>
+              <td>{item.userId}</td>
               <td>
-                <Link to={"/admin/modifyRestaurantTable/" + item.tableName}>
+                <Link to={"/staff/modifyRestaurantTable/" + item.tableName}>
                   <div className="btn btn-success">Modify</div>
                 </Link>
               </td>
-              <td>
-                <Link to={"/admin/removeRestaurantTable/" + item.tableName}>
-                  <div className="btn btn-danger">Remove</div>
-                </Link>
-              </td>
+              {item.tableStatus === "occupied" && (
+                <td>
+                  <Link to={"/staff/customerVoucherManage/" + item.userId}>
+                    <div className="btn btn-warning">Customer Voucher</div>
+                  </Link>
+                </td>
+              )}
             </tr>
           ))}
+          <tr>
+            <td colSpan="7">
+              <button
+                className="btn btn-warning"
+                onClick={() => {
+                  quitQueue();
+                  var numberOfTimes = 0;
+                  restaurantTable.forEach((aTable) => {
+                    if (aTable.tableStatus === "available") {
+                      numberOfTimes++;
+                    }
+                  });
+                  assignSeat(numberOfTimes);
+                  navigate("/staff/home");
+                }}
+              >
+                Back
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
       <br />
-      <div style={{ width: "100%" }}>
-        <button
-          style={{ width: "48%", margin: "5px" }}
-          className="btn btn-warning"
-          onClick={() => {
-            quitQueue();
-            navigate("/admin/home");
-          }}
-        >
-          Back
-        </button>
-        <Link to={"/admin/addRestaurantTable/0"}>
-          <div
-            className="btn btn-warning"
-            style={{ width: "48%", margin: "5px" }}
-          >
-            Add Table
-          </div>
-        </Link>
-      </div>
+
       <br />
     </div>
   );
 }
 
-export default AdminTablePage;
+export default StaffTablePage;

@@ -5,7 +5,8 @@ import { UserContext } from "../context/userContext";
 
 function UserRestaurantPage() {
   const navigate = useNavigate();
-  const { userId, restaurantId, setRestaurantId } = useContext(UserContext);
+  const { userId, restaurantId, setRestaurantId, socket } =
+    useContext(UserContext);
   const pageParams = useParams();
   const joinRestaurantId = pageParams.id;
 
@@ -13,6 +14,36 @@ function UserRestaurantPage() {
   const [restaurantName, setRestaurantName] = useState("");
   const [restaurantChatbot, setRestaurantChatbot] = useState([]);
   const [restaurantDesc, setRestaurantDesc] = useState("");
+
+  const getCustomer = async () => {
+    const response = await fetch(
+      `http://localhost:8000/user/getCustomer/${restaurantId}/${userId}`
+    );
+    const jsonfirst = await response.json();
+    if (!response.ok) {
+      console.log("here actually, customer account not found");
+      const newCustomer = {
+        userId,
+        restaurantId,
+      };
+      const createNewCustomer = await fetch(
+        "http://localhost:8000/user/createNewCustomer",
+        {
+          method: "POST",
+          body: JSON.stringify(newCustomer),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      const json = await createNewCustomer.json();
+      if (!createNewCustomer.ok) {
+        console.log("Invalid Credentials");
+      } else {
+        console.log("Customer Created:" + json._id);
+      }
+    } else {
+      console.log("Customer Already Exist:" + jsonfirst._id);
+    }
+  };
 
   const getRestaurantData = async () => {
     setRestaurantId(joinRestaurantId);
@@ -44,10 +75,33 @@ function UserRestaurantPage() {
       if (json.restaurantTable.length === 0) {
         makeToast("warning", "Restaurant Is Not Applicable To be Opened Yet");
         navigate("/user/join");
+      } else {
+        var restaurantTableList = [];
+        restaurantTableList = json.restaurantTable;
+        const foundObject = restaurantTableList.find(
+          (obj) => obj.userId === userId
+        );
+
+        if (foundObject) {
+          makeToast("warning", "You Are Already Assigned To A Seat");
+          navigate("/user/join");
+        } else {
+          getCustomer();
+        }
       }
     } else {
       makeToast("error", "Invalid");
       navigate("/user/join");
+    }
+  };
+
+  const checkAdminRoom = () => {
+    if (socket) {
+      socket.emit("checkRoom", {
+        restaurantId: joinRestaurantId + "admin",
+        userId: userId,
+        actionType: "queue",
+      });
     }
   };
 
@@ -61,7 +115,27 @@ function UserRestaurantPage() {
       navigate("/user/login");
     }
     getRestaurantData();
-  });
+  }, []);
+
+  useEffect(() => {
+    checkAdminRoom();
+
+    socket.on("RoomStatusResult", (message) => {
+      console.log("userId:" + message.userId);
+      console.log("actionType:" + message.actionType);
+      console.log("status:" + message.message);
+      if (message.userId === userId && message.actionType === "queue") {
+        console.log("passed here for some reason");
+        if (message.message !== "available") {
+          makeToast(
+            "warning",
+            "Restaurant Is Currently Under Maintenance, Please Come Back Later"
+          );
+          navigate("/user/join");
+        }
+      }
+    });
+  }, []);
   return (
     <div className="container mt-4 mb-4">
       <table className="table table-hover">

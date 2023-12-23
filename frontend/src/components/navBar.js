@@ -1,13 +1,50 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/userContext";
 import makeToast from "../toast";
 
-function NavBar() {
+function NavBar({ currentPage }) {
   const navigate = useNavigate();
-  const { role, inQueue, setInQueue, socket, restaurantId, book, setBook } =
-    useContext(UserContext);
+  const {
+    role,
+    inQueue,
+    setInQueue,
+    socket,
+    restaurantId,
+    book,
+    setBook,
+    userId,
+    chosenGame,
+  } = useContext(UserContext);
   console.log(`navBar Role ${role}`);
+
+  useEffect(() => {
+    socket.on("RoomStatusResult", (message) => {
+      if (message.userId === userId && role === "admin") {
+        if (message.message === "available") {
+          if (message.actionType === "chatbot") {
+            joinAdminRoom();
+            navigate("/admin/chatbot");
+          } else if (message.actionType === "table") {
+            joinAdminRoom();
+            navigate("/admin/viewTable");
+          } else if (message.actionType === "game") {
+            joinAdminRoom();
+            navigate("/admin/gameSetup");
+          }
+        } else {
+          if (message.actionType === "chatbot") {
+            makeToast(
+              "warning",
+              "Cannot Access Chatbot When System is Serving"
+            );
+          } else {
+            makeToast("warning", message.message);
+          }
+        }
+      }
+    });
+  }, []);
 
   const exitQueue = async () => {
     var userId;
@@ -73,6 +110,25 @@ function NavBar() {
       exitQueue();
     }
   };
+
+  const checkRoom = (actionT) => {
+    console.log("triggered this effect");
+    if (socket) {
+      socket.emit("checkRoom", {
+        restaurantId: restaurantId,
+        userId: userId,
+        actionType: actionT,
+      });
+    }
+  };
+  const joinAdminRoom = () => {
+    const adminRoomId = restaurantId + "admin";
+    console.log("adminRoomId " + adminRoomId);
+    if (socket) {
+      socket.emit("joinRoom", { restaurantId: adminRoomId });
+    }
+  };
+
   return (
     <nav
       style={{ backgroundColor: "rgba(255, 193, 7, 1)" }}
@@ -111,7 +167,13 @@ function NavBar() {
             >
               Home <span className="sr-only">(current)</span>
             </a>
-            <a style={{ cursor: "pointer" }} className="nav-item nav-link mx-2">
+            <a
+              style={{ cursor: "pointer" }}
+              className="nav-item nav-link mx-2"
+              onClick={() => {
+                navigate("/staff/viewTable");
+              }}
+            >
               View Table
             </a>
             <a
@@ -120,6 +182,13 @@ function NavBar() {
               onClick={() => navigate("/profile")}
             >
               View Profile
+            </a>
+            <a
+              style={{ cursor: "pointer" }}
+              className="nav-item nav-link mx-2"
+              onClick={() => navigate("/")}
+            >
+              Log Out
             </a>
           </div>
         )}
@@ -140,15 +209,41 @@ function NavBar() {
             >
               Register New User
             </a>
-            <a style={{ cursor: "pointer" }} className="nav-item nav-link mx-2">
+            <a
+              style={{ cursor: "pointer" }}
+              className="nav-item nav-link mx-2"
+              onClick={() => {
+                checkRoom("chatbot");
+              }}
+            >
               View Chatbot
             </a>
             <a
               style={{ cursor: "pointer" }}
               className="nav-item nav-link mx-2"
-              onClick={() => navigate("/admin/viewTable")}
+              onClick={() => {
+                checkRoom("table");
+              }}
             >
               View Table
+            </a>
+            <a
+              style={{ cursor: "pointer" }}
+              className="nav-item nav-link mx-2"
+              onClick={() => {
+                navigate("/admin/voucher");
+              }}
+            >
+              View Voucher
+            </a>
+            <a
+              style={{ cursor: "pointer" }}
+              className="nav-item nav-link mx-2"
+              onClick={() => {
+                checkRoom("game");
+              }}
+            >
+              Games Setup
             </a>
             <a
               style={{ cursor: "pointer" }}
@@ -156,6 +251,13 @@ function NavBar() {
               onClick={() => navigate("/profile")}
             >
               View Profile
+            </a>
+            <a
+              style={{ cursor: "pointer" }}
+              className="nav-item nav-link mx-2"
+              onClick={() => navigate("/")}
+            >
+              Log Out
             </a>
           </div>
         )}
@@ -182,9 +284,19 @@ function NavBar() {
                 className="nav-item nav-link mx-2"
                 onClick={() => navigate("/user/join")}
               >
-                Join Restaurant
+                Restaurants
               </a>
             )}
+            {!inQueue && (
+              <a
+                style={{ cursor: "pointer" }}
+                className="nav-item nav-link mx-2"
+                onClick={() => navigate("/")}
+              >
+                Log Out
+              </a>
+            )}
+
             {inQueue && (
               <a
                 style={{ cursor: "pointer" }}
@@ -198,9 +310,24 @@ function NavBar() {
               <a
                 style={{ cursor: "pointer" }}
                 className="nav-item nav-link mx-2"
-                onClick={() => navigate("/user/join")}
+                onClick={() => {
+                  if (chosenGame === "wait") {
+                    navigate("/user/customerWaitingGame");
+                  } else {
+                    navigate("/user/home");
+                  }
+                }}
               >
-                Earn Rewards
+                Return To Game
+              </a>
+            )}
+            {inQueue && (
+              <a
+                style={{ cursor: "pointer" }}
+                className="nav-item nav-link mx-2"
+                onClick={() => navigate("/user/voucherPage/" + restaurantId)}
+              >
+                View Vouchers
               </a>
             )}
             {inQueue && (
