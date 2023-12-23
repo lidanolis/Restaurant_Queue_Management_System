@@ -11,6 +11,18 @@ import UserRestaurantPage from "./pages/userRestaurantPage";
 import AdminTablePage from "./pages/adminTablePage";
 import UserQueueInfoPage from "./pages/userQueueInfoPage";
 import AdminTableManagePage from "./pages/adminTableManagePage";
+import AdminChatbotPage from "./pages/adminChatbotPage";
+import UserSeatPage from "./pages/userSeatPage";
+import AdminVoucherPage from "./pages/adminVoucherPage";
+import AdminVoucherManagePage from "./pages/adminVoucherManagePage";
+import StaffTablePage from "./pages/staffTablePage";
+import StaffTableManagePage from "./pages/staffTableManagePage";
+import UserVoucherPage from "./pages/userVoucherPage";
+import UserPersonalVoucherPage from "./pages/userPersonalVoucherPage";
+import StaffVoucherManagePage from "./pages/staffVoucherManagePage";
+import UserGameSelectPage from "./pages/userGameSelectPage";
+import UserWaitingGamePage from "./pages/userWaitingGamePage";
+import AdminGameSetupPage from "./pages/adminGameSetupPage";
 import { useState } from "react";
 import { UserContext } from "./context/userContext";
 import io from "socket.io-client";
@@ -21,6 +33,9 @@ function App() {
   const [socket, setSocket] = useState(null);
   const [inQueue, setInQueue] = useState(false);
   const [book, setBook] = useState(null);
+  const [waitingPoints, setWaitingPoints] = useState(0);
+  const [chosenGame, setChosenGame] = useState("wait");
+  const [timeWaited, setTimeWaited] = useState(0);
   //socket use State above
 
   const [username, setUsername] = useState("");
@@ -80,6 +95,12 @@ function App() {
         setInQueue,
         book,
         setBook,
+        waitingPoints,
+        setWaitingPoints,
+        chosenGame,
+        setChosenGame,
+        timeWaited,
+        setTimeWaited,
       }}
     >
       <div>
@@ -134,6 +155,10 @@ function App() {
                 element={<AdminTablePage></AdminTablePage>}
               />
               <Route
+                path="/staff/viewTable"
+                element={<StaffTablePage></StaffTablePage>}
+              />
+              <Route
                 path="/user/restaurant/:id"
                 element={<UserRestaurantPage></UserRestaurantPage>}
               ></Route>
@@ -148,6 +173,12 @@ function App() {
                 }
               ></Route>
               <Route
+                path="/staff/modifyRestaurantTable/:id"
+                element={
+                  <StaffTableManagePage managementFunction="modify"></StaffTableManagePage>
+                }
+              ></Route>
+              <Route
                 path="/admin/modifyRestaurantTable/:id"
                 element={
                   <AdminTableManagePage managementFunction="modify"></AdminTableManagePage>
@@ -158,6 +189,76 @@ function App() {
                 element={
                   <AdminTableManagePage managementFunction="remove"></AdminTableManagePage>
                 }
+              ></Route>
+              <Route
+                path="/admin/chatbot"
+                element={<AdminChatbotPage></AdminChatbotPage>}
+              ></Route>
+              <Route
+                path="/user/seatPage/:tableName"
+                element={<UserSeatPage></UserSeatPage>}
+              ></Route>
+              <Route
+                path="/admin/voucher"
+                element={<AdminVoucherPage></AdminVoucherPage>}
+              ></Route>
+              <Route
+                path="/admin/adminVoucherModifyPage/:id"
+                element={
+                  <AdminVoucherManagePage managementFunction="modify"></AdminVoucherManagePage>
+                }
+              ></Route>
+              <Route
+                path="/admin/adminVoucherAddPage/:id"
+                element={
+                  <AdminVoucherManagePage managementFunction="add"></AdminVoucherManagePage>
+                }
+              ></Route>
+              <Route
+                path="/admin/adminVoucherRemovePage/:id"
+                element={
+                  <AdminVoucherManagePage managementFunction="remove"></AdminVoucherManagePage>
+                }
+              ></Route>
+              <Route
+                path="/user/vouchersPage/:restaurantId"
+                element={
+                  <UserVoucherPage voucherAccessType="notqueue"></UserVoucherPage>
+                }
+              ></Route>
+              <Route
+                path="/user/voucherPage/:restaurantId"
+                element={
+                  <UserVoucherPage voucherAccessType="queue"></UserVoucherPage>
+                }
+              ></Route>
+              <Route
+                path="/user/personalVouchers/:restaurantId"
+                element={
+                  <UserPersonalVoucherPage voucherAccessType="notqueue"></UserPersonalVoucherPage>
+                }
+              ></Route>
+              <Route
+                path="/user/personalVoucher/:restaurantId"
+                element={
+                  <UserPersonalVoucherPage voucherAccessType="queue"></UserPersonalVoucherPage>
+                }
+              ></Route>
+              <Route
+                path="/staff/customerVoucherManage/:id"
+                element={<StaffVoucherManagePage></StaffVoucherManagePage>}
+              ></Route>
+              <Route
+                path="/user/customerGameSelectPage"
+                element={<UserGameSelectPage></UserGameSelectPage>}
+              ></Route>
+              <Route
+                path="/user/customerWaitingGame"
+                element={<UserWaitingGamePage></UserWaitingGamePage>}
+              ></Route>
+              <Route
+                path="/admin/gameSetup"
+                element={<AdminGameSetupPage></AdminGameSetupPage>}
               ></Route>
             </Routes>
           </div>

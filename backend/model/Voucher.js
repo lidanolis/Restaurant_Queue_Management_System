@@ -3,8 +3,17 @@ const Schema = mongoose.Schema;
 
 const voucherSchema = new Schema(
   {
+    restaurantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Restaurant",
+    },
     voucherInformation: { type: String },
-    voucherQuantity: { type: Number, default: 0 },
+    pointsRequired: { type: Number },
+    voucherAcquireMethod: { type: String },
+    voucherDuration: { type: Number },
+    durationType: { type: String },
+    voucherStatus: { type: String },
   },
   { timestamps: true }
 );

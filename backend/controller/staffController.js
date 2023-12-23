@@ -2,6 +2,37 @@ const mongoose = require("mongoose");
 const Restaurant = require("../model/Restaurant");
 const User = require("../model/User");
 const Staff = require("../model/Staff");
+const Voucher = require("../model/Voucher");
+
+const getAVoucher = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  const result = await Voucher.findOne({
+    _id: id,
+  });
+
+  if (!result) {
+    res.status(500).json({ mssg: "error" });
+  }
+  res.status(200).json(result);
+};
+
+const getVoucherList = async (req, res) => {
+  const { restaurantId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  const result = await Voucher.find({
+    restaurantId: restaurantId,
+  });
+
+  if (!result) {
+    res.status(500).json({ mssg: "error" });
+  }
+  res.status(200).json(result);
+};
 
 const createRestaurant = async (req, res) => {
   const { restaurantName, restaurantDescription } = req.body;
@@ -11,6 +42,10 @@ const createRestaurant = async (req, res) => {
       restaurantDescription: restaurantDescription,
       restaurantTable: [],
       chatbotSequence: [],
+      waitingGameTimeRequired: 1,
+      waitingGameTimeType: "minute",
+      waitingGamePointsGiven: 1,
+      actionGamePointsGiven: 1,
     });
     res.status(200).json(newRestaurant);
   } catch (err) {
@@ -64,6 +99,7 @@ const addTableToRestaurant = async (req, res) => {
     tableName,
     tableQuantity,
     tableStatus,
+    userId: null,
   };
   console.log("new table object " + newTableObject);
   try {
@@ -84,16 +120,18 @@ const addTableToRestaurant = async (req, res) => {
 
 const updateTable = async (req, res) => {
   const { id } = req.params;
-  const { tableName, tableQuantity, tableStatus } = req.body;
+  const { tableName, tableQuantity, tableStatus, userId } = req.body;
   const updatedTable = {
     tableName,
     tableQuantity,
     tableStatus,
+    userId,
   };
   console.log("restaurant Id" + id);
   console.log("table name" + tableName);
   console.log("table Quantity" + tableQuantity);
   console.log("table Status" + tableStatus);
+  console.log("userId" + userId);
 
   try {
     const updatedRestaurant = await Restaurant.findOneAndUpdate(
@@ -147,6 +185,111 @@ const removeTable = async (req, res) => {
   }
 };
 
+const addVoucherToRestaurant = async (req, res) => {
+  const {
+    restaurantId,
+    voucherInformation,
+    pointsRequired,
+    voucherAcquireMethod,
+    voucherDuration,
+    durationType,
+    voucherStatus,
+  } = req.body;
+  try {
+    const newVoucher = await Voucher.create({
+      restaurantId: restaurantId,
+      voucherInformation: voucherInformation,
+      pointsRequired: pointsRequired,
+      voucherAcquireMethod: voucherAcquireMethod,
+      voucherDuration: voucherDuration,
+      durationType: durationType,
+      voucherStatus: voucherStatus,
+    });
+    res.status(200).json(newVoucher);
+  } catch (err) {
+    res.status(500).json({ mssg: err });
+  }
+};
+
+const updateVoucher = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const updatedVoucher = await Voucher.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $set: { ...req.body },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedVoucher) {
+      console.log("Voucher not found");
+      return res.status(500).json({ mssg: "error" });
+    }
+    return res.status(200).json(updatedVoucher);
+  } catch (error) {
+    console.error("Error updating Voucher:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const removeVoucher = async (req, res) => {
+  const { id } = req.params;
+  console.log("id: " + id);
+  try {
+    const removeVoucher = await Voucher.findOneAndUpdate(
+      { _id: id },
+      {
+        $set: { voucherStatus: "remove" },
+      }
+    );
+
+    if (!removeVoucher) {
+      console.log("Voucher not found");
+      return res.status(404).json({ mssg: "Voucher not found" });
+    }
+
+    console.log("Voucher removed successfully");
+    return res.status(200).json(removeVoucher);
+  } catch (error) {
+    console.error("Error removing voucher:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const updateRestaurantGame = async (req, res) => {
+  const { id } = req.params;
+  const {
+    actionGamePointsGiven,
+    waitingGameTimeRequired,
+    waitingGameTimeType,
+    waitingGamePointsGiven,
+  } = req.body;
+  try {
+    // Find the restaurant by ID and update the restaurantTable array
+    const updatedRestaurant = await Restaurant.findOneAndUpdate(
+      { _id: id },
+      {
+        $set: {
+          actionGamePointsGiven: actionGamePointsGiven,
+          waitingGameTimeRequired: waitingGameTimeRequired,
+          waitingGameTimeType: waitingGameTimeType,
+          waitingGamePointsGiven: waitingGamePointsGiven,
+        },
+      },
+      { new: true } // Return the updated document
+    );
+
+    console.log("Updated Restaurant:", updatedRestaurant);
+    return res.status(200).json(updatedRestaurant);
+  } catch (error) {
+    console.error("Error updating game Setup to restaurant:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
 module.exports = {
   createRestaurant,
   setStaffRestaurant,
@@ -155,4 +298,10 @@ module.exports = {
   addTableToRestaurant,
   updateTable,
   removeTable,
+  getVoucherList,
+  getAVoucher,
+  addVoucherToRestaurant,
+  updateVoucher,
+  removeVoucher,
+  updateRestaurantGame,
 };

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import makeToast from "../toast";
 import { UserContext } from "../context/userContext";
@@ -16,6 +16,10 @@ function ProfilePage() {
     setContact,
     role,
     userId,
+    restaurantId,
+    socket,
+    inQueue,
+    setInQueue,
   } = useContext(UserContext);
 
   const getProfile = async () => {
@@ -78,6 +82,19 @@ function ProfilePage() {
       }
     }
   };
+
+  useEffect(() => {
+    socket.on("getSeat", (message) => {
+      if (message.userId === userId && role === "user") {
+        if (message.restaurantId === restaurantId) {
+          if (inQueue) {
+            setInQueue(false);
+            navigate(`/user/seatPage/${message.tableName}`);
+          }
+        }
+      }
+    });
+  }, []);
 
   return (
     <div className="card">

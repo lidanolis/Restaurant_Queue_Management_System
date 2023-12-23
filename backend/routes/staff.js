@@ -7,6 +7,12 @@ const {
   addTableToRestaurant,
   updateTable,
   removeTable,
+  getVoucherList,
+  getAVoucher,
+  addVoucherToRestaurant,
+  updateVoucher,
+  removeVoucher,
+  updateRestaurantGame,
 } = require("../controller/staffController");
 
 router.post("/createRestaurant", createRestaurant);
@@ -16,5 +22,11 @@ router.get("/getRestaurant/:id", getRestaurantWithRestaurantId);
 router.post("/addTable/:id", addTableToRestaurant);
 router.post("/updateTable/:id", updateTable);
 router.post("/removeTable/:id", removeTable);
+router.get("/getVoucher/:restaurantId", getVoucherList);
+router.get("/getAVoucher/:id", getAVoucher);
+router.post("/addVoucher", addVoucherToRestaurant);
+router.post("/updateVoucher/:id", updateVoucher);
+router.post("/removeVoucher/:id", removeVoucher);
+router.post("/updateGame/:id", updateRestaurantGame);
 
 module.exports = router;

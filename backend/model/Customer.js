@@ -8,7 +8,8 @@ const userVoucherSchema = new Schema(
       required: true,
       ref: "Voucher",
     },
-    voucherQuantity: { type: Number, default: 0 },
+    voucherExpiration: { type: Date },
+    voucherStatus: { type: String },
   },
   { timestamps: true }
 );
