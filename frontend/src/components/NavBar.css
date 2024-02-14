@@ -1,0 +1,88 @@
+.nav{
+  	position: relative; 
+    background: #f0b60a;
+  	color:white;
+ 	z-index: 1; /*ensure the navigational bar is on a different plane, thus doesn't interfer with other content*/
+	width:100%;
+	height:70px;
+    box-shadow: 0 3px 5px 0 rgb(157, 150, 150);
+}
+
+.nav ul{
+    padding:0;
+    margin:0;
+    list-style:none;
+    position:absolute;
+    width: 75%;
+    display: flex;
+    justify-content: space-between; 
+}
+.nav ul li{
+    font-family:Century Gothic;
+    font-weight:bold;
+    float:left;
+    margin-top:20px;
+    width:300px;
+    color:white;
+    display:block;
+    text-decoration:none;
+    font-size:20px;
+    text-align:center;
+    border-radius:10px;
+}
+
+.nav ul li a{
+    text-shadow:2px 2px black;
+    font-family:Century Gothic;
+    font-weight:bold;
+    width:230px;
+    color:white;
+    display:block;
+    text-decoration:none;
+    font-size:20px;
+    text-align:center;
+    border-radius:10px;
+}
+.nav a:hover{
+    background:#ac6222;
+    color:white;
+}
+.nav ul li ul{
+    background:black;
+    box-shadow: 0 3px 10px 0 black;
+    width: 25%;
+}
+.nav ul li ul li{
+    float:none;
+}
+.nav ul li ul{
+    display:none;
+}
+.nav ul li:hover ul{
+    display:block;
+}
+.nav .Logo{
+    cursor: default;
+    font-family:Century Gothic;
+    font-weight:bold;
+    width:100px;
+    color:black;
+    display:block;
+    text-decoration:none;
+    font-size:20px;
+    text-align:center;
+    border-radius:10px;
+}
+.nav .Home{
+    cursor: default;
+    text-shadow:2px 2px black;
+    font-family:Century Gothic;
+    font-weight:bold;
+    width:230px;
+    color:white;
+    display:block;
+    text-decoration:underline;
+    font-size:20px;
+    text-align:center;
+    border-radius:10px;
+}

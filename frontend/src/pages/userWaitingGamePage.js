@@ -47,7 +47,7 @@ function UserWaitingGamePage() {
   }, []);
 
   useEffect(() => {
-    socket.on("getSeat", (message) => {
+    const handleGetSeat = (message) => {
       if (message.userId === userId && role === "user") {
         if (message.restaurantId === restaurantId) {
           if (inQueue) {
@@ -56,24 +56,32 @@ function UserWaitingGamePage() {
           }
         }
       }
-    });
+    };
+
+    socket.on("getSeat", handleGetSeat);
+
+    return () => {
+      socket.off("getSeat", handleGetSeat);
+    };
   }, []);
   return (
-    <div className="card">
-      <div className="cardHeader">Games</div>
-      <div className="cardBody">
-        <div className="inputGroup">
-          <label>{counter} Minutes Waited</label>
-        </div>
-        <div className="inputGroup">
-          <button
-            className="btn btn-warning"
-            onClick={() => {
-              navigate("/user/home");
-            }}
-          >
-            Home
-          </button>
+    <div className="common">
+      <div className="card">
+        <div className="cardHeader">Games</div>
+        <div className="cardBody">
+          <div className="inputGroup">
+            <label>{counter} Minutes Waited</label>
+          </div>
+          <div className="inputGroup">
+            <button
+              className="btnBasicDesign"
+              onClick={() => {
+                navigate("/user/home");
+              }}
+            >
+              Home
+            </button>
+          </div>
         </div>
       </div>
     </div>

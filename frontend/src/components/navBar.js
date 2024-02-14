@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/userContext";
 import makeToast from "../toast";
+import "./NavBar.css";
 
 function NavBar({ currentPage }) {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ function NavBar({ currentPage }) {
   console.log(`navBar Role ${role}`);
 
   useEffect(() => {
-    socket.on("RoomStatusResult", (message) => {
+    const handleRoomStatusResult = (message) => {
       if (message.userId === userId && role === "admin") {
         if (message.message === "available") {
           if (message.actionType === "chatbot") {
@@ -31,6 +32,9 @@ function NavBar({ currentPage }) {
           } else if (message.actionType === "game") {
             joinAdminRoom();
             navigate("/admin/gameSetup");
+          } else if (message.actionType === "menu") {
+            joinAdminRoom();
+            navigate("/admin/restaurantMenu");
           }
         } else {
           if (message.actionType === "chatbot") {
@@ -43,8 +47,56 @@ function NavBar({ currentPage }) {
           }
         }
       }
-    });
+    };
+
+    socket.on("RoomStatusResult", handleRoomStatusResult);
+
+    return () => {
+      socket.off("RoomStatusResult", handleRoomStatusResult);
+    };
   }, []);
+
+  const inOutStatus = async () => {
+    const inoutStatus = {
+      inOut: "out",
+    };
+    const updateInOutStatus = await fetch(
+      `http://localhost:8000/updateInOut/${userId}`,
+      {
+        method: "POST",
+        body: JSON.stringify(inoutStatus),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const inOutJson = await updateInOutStatus.json();
+    if (updateInOutStatus.ok) {
+      if (socket) {
+        socket.emit("homePageChange", {
+          restaurantId: restaurantId,
+          actionType: "admin",
+        });
+      }
+      navigate("/");
+    }
+  };
+
+  const checkSeating = async () => {
+    const response = await fetch(
+      `http://localhost:8000/user/checkRestaurantSeats/${userId}`
+    );
+    const foundSeat = await response.json().catch((err) => {
+      console.log("error here instead: " + err);
+    });
+
+    if (response.ok) {
+      const findObject = foundSeat.restaurantTable.find(
+        (aTable) => aTable.userId === userId
+      );
+      navigate(`/user/seatBookFound/${findObject.tableName}`);
+    } else {
+      makeToast("error", "No Seat Found");
+    }
+  };
 
   const exitQueue = async () => {
     var userId;
@@ -107,7 +159,14 @@ function NavBar({ currentPage }) {
     if (socket) {
       socket.emit("leaveRoom", { restaurantId });
       setInQueue(false);
-      exitQueue();
+      exitQueue().then(() => {
+        if (socket) {
+          socket.emit("homePageChange", {
+            restaurantId: restaurantId,
+            actionType: "staff",
+          });
+        }
+      });
     }
   };
 
@@ -130,223 +189,309 @@ function NavBar({ currentPage }) {
   };
 
   return (
-    <nav
-      style={{ backgroundColor: "rgba(255, 193, 7, 1)" }}
-      className="navbar navbar-expand-lg navbar-light"
-    >
-      <a
-        style={{ cursor: "default", fontWeight: "bold" }}
-        className="navbar-brand mx-2"
-      >
-        {role.toUpperCase()}
-      </a>
-
-      <button
-        className="navbar-toggler mx-2"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNavAltMarkup"
-        aria-controls="navbarNavAltMarkup"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span className="navbar-toggler-icon mx-2"></span>
-      </button>
-
-      <div
-        style={{ cursor: "pointer" }}
-        className="collapse navbar-collapse mx-2"
-        id="navbarNavAltMarkup"
-      >
+    <div className="nav">
+      {" "}
+      <ul>
+        <li>
+          <div className="Logo">{role.toUpperCase()}</div>
+        </li>
         {role === "staff" && (
-          <div className="navbar-nav">
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link active mx-2"
-              onClick={() => navigate("/staff/home")}
-            >
-              Home <span className="sr-only">(current)</span>
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => {
-                navigate("/staff/viewTable");
-              }}
-            >
-              View Table
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => navigate("/profile")}
-            >
-              View Profile
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => navigate("/")}
-            >
-              Log Out
-            </a>
-          </div>
+          <>
+            <li>
+              {" "}
+              <div className="Home">Home (Current)</div>
+            </li>
+            <li>
+              <a
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  navigate("/staff/viewTable");
+                }}
+              >
+                Table Setup
+              </a>
+            </li>
+            <li>
+              <a
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  navigate("/staff/estimationWaitingTime");
+                }}
+              >
+                Estimation Waiting Time
+              </a>
+            </li>
+            <li>
+              <a
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  navigate("/admin/QRcode");
+                }}
+              >
+                QR Code Setup
+              </a>
+            </li>
+            <li>
+              <a style={{ cursor: "default", fontWeight: "bold" }}>Setting</a>
+              <ul>
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate("/profile")}
+                  >
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a style={{ cursor: "pointer" }} onClick={inOutStatus}>
+                    Log Out
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </>
         )}
 
         {role === "admin" && (
-          <div className="navbar-nav">
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link active mx-2"
-              onClick={() => navigate("/admin/home")}
-            >
-              Home <span className="sr-only">(current)</span>
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => navigate("/staff/register")}
-            >
-              Register New User
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => {
-                checkRoom("chatbot");
-              }}
-            >
-              View Chatbot
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => {
-                checkRoom("table");
-              }}
-            >
-              View Table
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => {
-                navigate("/admin/voucher");
-              }}
-            >
-              View Voucher
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => {
-                checkRoom("game");
-              }}
-            >
-              Games Setup
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => navigate("/profile")}
-            >
-              View Profile
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => navigate("/")}
-            >
-              Log Out
-            </a>
-          </div>
+          <>
+            <li>
+              {" "}
+              <div className="Home">Home (Current)</div>
+            </li>
+            <li>
+              <a style={{ cursor: "default", fontWeight: "bold" }}>
+                Restaurant Setup
+              </a>
+              <ul>
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      checkRoom("chatbot");
+                    }}
+                  >
+                    Chatbot Setup
+                  </a>
+                </li>
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      checkRoom("table");
+                    }}
+                  >
+                    Table Setup
+                  </a>
+                </li>
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      navigate("/admin/voucher");
+                    }}
+                  >
+                    Voucher Setup
+                  </a>
+                </li>
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      checkRoom("game");
+                    }}
+                  >
+                    Games Setup
+                  </a>
+                </li>
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      checkRoom("menu");
+                    }}
+                  >
+                    Menu Setup
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/staff/register")}
+              >
+                Account Registration
+              </a>
+            </li>
+            <li>
+              <a style={{ cursor: "default", fontWeight: "bold" }}>Setting</a>
+              <ul>
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate("/profile")}
+                  >
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a style={{ cursor: "pointer" }} onClick={inOutStatus}>
+                    Log Out
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </>
         )}
 
         {role === "user" && (
-          <div className="navbar-nav">
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link active mx-2"
-              onClick={() => navigate("/user/home")}
-            >
-              Home <span className="sr-only">(current)</span>
-            </a>
-            <a
-              style={{ cursor: "pointer" }}
-              className="nav-item nav-link mx-2"
-              onClick={() => navigate("/profile")}
-            >
-              View Profile
-            </a>
+          <>
+            <li>
+              {" "}
+              <div className="Home">Home (Current)</div>
+            </li>
             {!inQueue && (
-              <a
-                style={{ cursor: "pointer" }}
-                className="nav-item nav-link mx-2"
-                onClick={() => navigate("/user/join")}
-              >
-                Restaurants
-              </a>
+              <li>
+                <a
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate("/user/join")}
+                >
+                  Restaurants
+                </a>
+              </li>
             )}
+
             {!inQueue && (
-              <a
-                style={{ cursor: "pointer" }}
-                className="nav-item nav-link mx-2"
-                onClick={() => navigate("/")}
-              >
-                Log Out
-              </a>
+              <li>
+                <a
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    navigate("/user/selectingSeatBooking");
+                  }}
+                >
+                  Wait For Booking
+                </a>
+              </li>
+            )}
+
+            {!inQueue && (
+              <li>
+                <a style={{ cursor: "pointer" }} onClick={checkSeating}>
+                  Return To Seat
+                </a>
+              </li>
             )}
 
             {inQueue && (
-              <a
-                style={{ cursor: "pointer" }}
-                className="nav-item nav-link mx-2"
-                onClick={() => navigate("/user/join")}
-              >
-                View Status
-              </a>
+              <li>
+                <a style={{ cursor: "default", fontWeight: "bold" }}>Queue</a>
+                <ul>
+                  {inQueue && (
+                    <li>
+                      <a
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          navigate("/user/tableStatus/" + restaurantId)
+                        }
+                      >
+                        View Queue Status
+                      </a>
+                    </li>
+                  )}
+                  {inQueue && (
+                    <li>
+                      <a
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          if (chosenGame === "wait") {
+                            navigate("/user/customerWaitingGame");
+                          } else {
+                            navigate("/user/customerActionGame");
+                          }
+                        }}
+                      >
+                        Return To Game
+                      </a>
+                    </li>
+                  )}
+                  {inQueue && (
+                    <li>
+                      <a
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          navigate("/user/queueRestaurantMenu/" + restaurantId)
+                        }
+                      >
+                        Restaurant Menu
+                      </a>
+                    </li>
+                  )}
+                  {inQueue && (
+                    <li>
+                      <a
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          navigate("/user/voucherPage/" + restaurantId)
+                        }
+                      >
+                        View Vouchers
+                      </a>
+                    </li>
+                  )}
+                  {inQueue && (
+                    <li>
+                      <a
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          navigate("/user/queueBookingModification")
+                        }
+                      >
+                        Modify Seating Information
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </li>
             )}
             {inQueue && (
-              <a
-                style={{ cursor: "pointer" }}
-                className="nav-item nav-link mx-2"
-                onClick={() => {
-                  if (chosenGame === "wait") {
-                    navigate("/user/customerWaitingGame");
-                  } else {
-                    navigate("/user/home");
-                  }
-                }}
-              >
-                Return To Game
-              </a>
+              <li>
+                <a
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    quitQueue().then(() => {
+                      makeToast("success", "Quit From Queue");
+                    });
+                  }}
+                >
+                  Quit Queue
+                </a>
+              </li>
             )}
-            {inQueue && (
-              <a
-                style={{ cursor: "pointer" }}
-                className="nav-item nav-link mx-2"
-                onClick={() => navigate("/user/voucherPage/" + restaurantId)}
-              >
-                View Vouchers
-              </a>
-            )}
-            {inQueue && (
-              <a
-                style={{ cursor: "pointer" }}
-                className="nav-item nav-link mx-2"
-                onClick={() => {
-                  quitQueue().then(() => {
-                    makeToast("success", "Quit From Queue");
-                  });
-                }}
-              >
-                Quit Queue
-              </a>
-            )}
-          </div>
+            <li>
+              <a style={{ cursor: "default", fontWeight: "bold" }}>Setting</a>
+              <ul>
+                {" "}
+                <li>
+                  <a
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate("/profile")}
+                  >
+                    Profile
+                  </a>
+                </li>
+                {!inQueue && (
+                  <li>
+                    <a style={{ cursor: "pointer" }} onClick={inOutStatus}>
+                      Log Out
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </li>
+          </>
         )}
-      </div>
-    </nav>
+      </ul>
+    </div>
   );
 }
 

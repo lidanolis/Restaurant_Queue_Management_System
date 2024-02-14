@@ -83,10 +83,30 @@ mongoose
       });
       socket.on("assignSeat", ({ restaurantId, userId, tableName }) => {
         console.log("emited assigned seat");
+        console.log("restaurantId-" + restaurantId);
+        console.log("userId-" + userId);
         io.to(restaurantId).emit("getSeat", {
           restaurantId: restaurantId,
           userId: userId,
           tableName: tableName,
+        });
+        io.emit("homePageUpdate", {
+          restaurantId: restaurantId,
+          actionType: "staff",
+        });
+      });
+      socket.on("staffUpdate", ({ restaurantId, actionType }) => {
+        if (actionType === "homePage") {
+          io.emit("staffHomeUpdate", {
+            restaurantId: restaurantId,
+            actionType: actionType,
+          });
+        }
+      });
+      socket.on("homePageChange", ({ restaurantId, actionType }) => {
+        io.emit("homePageUpdate", {
+          restaurantId: restaurantId,
+          actionType: actionType,
         });
       });
     });

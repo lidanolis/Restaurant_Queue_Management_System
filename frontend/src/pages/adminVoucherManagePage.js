@@ -75,106 +75,108 @@ function AdminVoucherManagePage({ managementFunction }) {
     }
   }, []);
   return (
-    <div className="card">
-      <div className="cardHeader">Voucher</div>
-      <div className="cardBody">
-        <div className="inputGroup">
-          <label>Voucher Information</label>
-          <input
-            type="text"
-            name="voucherInformation"
-            onChange={(e) => {
-              setVoucherInformation(e.target.value);
-            }}
-            value={voucherInformation}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label>Points Required</label>
-          <input
-            type="text"
-            name="pointsRequired"
-            onChange={(e) => {
-              setPointsRequired(e.target.value);
-            }}
-            value={pointsRequired}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label>Voucher Acquire Method</label>
-          <select
-            name="voucherAcquireMethodRef"
-            defaultValue={voucherAcquireMethodRef.current.value}
-            ref={voucherAcquireMethodRef}
-            className="form-select"
-          >
-            <option value="newcommer">newcommer</option>
-            <option value="shop">shop</option>
-          </select>
-        </div>
-        <div className="inputGroup">
-          <label>Voucher Duration</label>
-          <div className="button-container d-flex gap-2">
+    <div className="common">
+      <div className="card">
+        <div className="cardHeader">Voucher</div>
+        <div className="cardBody">
+          <div className="inputGroup">
+            <label>Voucher Information</label>
             <input
               type="text"
-              name="voucherDuration"
+              name="voucherInformation"
               onChange={(e) => {
-                setVoucherDuration(e.target.value);
+                setVoucherInformation(e.target.value);
               }}
-              value={voucherDuration}
+              value={voucherInformation}
             ></input>
+          </div>
+          <div className="inputGroup">
+            <label>Points Required</label>
+            <input
+              type="text"
+              name="pointsRequired"
+              onChange={(e) => {
+                setPointsRequired(e.target.value);
+              }}
+              value={pointsRequired}
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label>Voucher Type</label>
             <select
-              name="durationTypeRef"
-              defaultValue={durationTypeRef.current.value}
-              ref={durationTypeRef}
+              name="voucherAcquireMethodRef"
+              defaultValue={voucherAcquireMethodRef.current.value}
+              ref={voucherAcquireMethodRef}
               className="form-select"
             >
-              <option value="hour">hour</option>
-              <option value="day">day</option>
-              <option value="week">week</option>
-              <option value="month">month</option>
-              <option value="year">year</option>
+              <option value="promotional">promotional</option>
+              <option value="shop">shop</option>
             </select>
           </div>
-        </div>
-        <div className="inputGroup">
-          <label>Voucher Status</label>
-          <select
-            name="voucherStatusRef"
-            defaultValue={voucherStatusRef.current.value}
-            ref={voucherStatusRef}
-            className="form-select"
-          >
-            <option value="available">available</option>
-            <option value="unavailable">unavailable</option>
-          </select>
-        </div>
-        <div className="button-container d-flex gap-2">
-          <button
-            onClick={() => {
-              if (
-                isValidNumericInput(voucherDuration) &&
-                isValidNumericInput(pointsRequired)
-              ) {
-                manageFunction();
-              } else {
-                setVoucherDuration(0);
-                setPointsRequired(0);
-                makeToast("error", "Invalid Duration");
-              }
-            }}
-            className="btn btn-success"
-          >
-            {managementFunction}
-          </button>
-          <button
-            className="btn btn-warning"
-            onClick={() => {
-              navigate("/admin/voucher");
-            }}
-          >
-            Back
-          </button>
+          <div className="inputGroup">
+            <label>Voucher Duration</label>
+            <div className="button-container d-flex gap-2">
+              <input
+                type="text"
+                name="voucherDuration"
+                onChange={(e) => {
+                  setVoucherDuration(e.target.value);
+                }}
+                value={voucherDuration}
+              ></input>
+              <select
+                name="durationTypeRef"
+                defaultValue={durationTypeRef.current.value}
+                ref={durationTypeRef}
+                className="form-select"
+              >
+                <option value="hour">hour</option>
+                <option value="day">day</option>
+                <option value="week">week</option>
+                <option value="month">month</option>
+                <option value="year">year</option>
+              </select>
+            </div>
+          </div>
+          <div className="inputGroup">
+            <label>Voucher Status</label>
+            <select
+              name="voucherStatusRef"
+              defaultValue={voucherStatusRef.current.value}
+              ref={voucherStatusRef}
+              className="form-select"
+            >
+              <option value="available">available</option>
+              <option value="unavailable">unavailable</option>
+            </select>
+          </div>
+          <div className="button-container d-flex gap-2">
+            <button
+              onClick={() => {
+                if (
+                  isValidNumericInput(voucherDuration) &&
+                  isValidNumericInput(pointsRequired)
+                ) {
+                  manageFunction();
+                } else {
+                  setVoucherDuration(0);
+                  setPointsRequired(0);
+                  makeToast("error", "Invalid Duration and/or Points");
+                }
+              }}
+              className="btnBasicDesign"
+            >
+              {managementFunction}
+            </button>
+            <button
+              className="btnBasicDesign"
+              onClick={() => {
+                navigate("/admin/voucher");
+              }}
+            >
+              Back
+            </button>
+          </div>
         </div>
       </div>
     </div>

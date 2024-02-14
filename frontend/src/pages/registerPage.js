@@ -90,8 +90,8 @@ function RegisterPage({ specificRole }) {
             makeToast("error", "Invalid Email Format");
           } else if (password.length < 6) {
             makeToast("error", "Password Must Be At Least 6 Character Long");
-          } else if (username.length < 6) {
-            makeToast("error", "Username Must Be At Least 6 Character Long");
+          } else if (username.length < 2) {
+            makeToast("error", "Username Must Be At Least 2 Character Long");
           } else {
             const registerNewStaff = await fetch(
               "http://localhost:8000/register",
@@ -130,16 +130,17 @@ function RegisterPage({ specificRole }) {
 
               if (role === "admin") {
                 const newRestaurantId = await createRestaurant();
-                setStaff(json._id, newRestaurantId);
-                navigate("/admin/home");
-              }
-              if (role === "staff") {
+                setStaff(json._id, newRestaurantId).then(() => {
+                  navigate("/home");
+                });
+              } else if (role === "staff") {
                 console.log("restaurant Id = " + adminRestaurantId);
-                setStaff(json._id, adminRestaurantId);
-                navigate("/staff/home");
+                setStaff(json._id, adminRestaurantId).then(() => {
+                  navigate("/admin/home");
+                });
+              } else {
+                navigate("/home");
               }
-
-              navigate("/home");
             }
           }
         } catch (err) {
@@ -150,124 +151,124 @@ function RegisterPage({ specificRole }) {
   };
 
   return (
-    <div className="card">
-      <div className="cardHeader">{role} Registration</div>
-      <div className="cardBody">
-        <div className="inputGroup">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            placeholder="abc@example.com"
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-            value={email}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="name">name</label>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            placeholder="John Doe"
-            onChange={(e) => {
-              setUsername(e.target.value);
-            }}
-            value={username}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="password">password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            placeholder="your password"
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-            value={password}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="contact">contact</label>
-          <input
-            type="text"
-            name="contact"
-            id="contact"
-            placeholder="your contact"
-            onChange={(e) => {
-              setContact(e.target.value);
-            }}
-            value={contact}
-          ></input>
-        </div>
-        {specificRole === "staff" && (
+    <div className="common">
+      <div className="card">
+        <div className="cardHeader">{role} Registration</div>
+        <div className="cardBody">
           <div className="inputGroup">
-            <label htmlFor="userRole">Role</label>
-            <select
-              name="userRole"
-              id="userRole"
-              defaultValue="user"
-              ref={RoleRef}
-              className="form-select"
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              placeholder="abc@example.com"
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+              value={email}
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="name">name</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              placeholder="John Doe"
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
+              value={username}
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="password">password</label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="your password"
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+              value={password}
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="contact">contact</label>
+            <input
+              type="text"
+              name="contact"
+              id="contact"
+              placeholder="your contact"
+              onChange={(e) => {
+                setContact(e.target.value);
+              }}
+              value={contact}
+            ></input>
+          </div>
+          {specificRole === "staff" && (
+            <div className="inputGroup">
+              <label htmlFor="userRole">Role</label>
+              <select
+                name="userRole"
+                id="userRole"
+                defaultValue="user"
+                ref={RoleRef}
+                className="form-select"
+              >
+                <option value="user">User</option>
+                <option value="staff">Staff</option>
+              </select>
+            </div>
+          )}
+          {specificRole === "admin" && (
+            <div>
+              <div className="inputGroup">
+                <label htmlFor="restaurantName">Restaurant Name</label>
+                <input
+                  type="text"
+                  name="restaurantName"
+                  id="restaurantName"
+                  onChange={(e) => {
+                    setRestaurantName(e.target.value);
+                  }}
+                  placeholder="Restaurant Information Here"
+                  value={restaurantName}
+                ></input>
+              </div>
+              <div className="inputGroup">
+                <label htmlFor="restaurantDesc">Restaurant Description</label>
+                <input
+                  type="text"
+                  name="restaurantDesc"
+                  id="restaurantDesc"
+                  placeholder="Restaurant Description Here"
+                  onChange={(e) => {
+                    setRestaurantDesc(e.target.value);
+                  }}
+                  value={restaurantDesc}
+                ></input>
+              </div>
+            </div>
+          )}
+          <div className="button-container d-flex gap-2">
+            <button onClick={registerUser} className="btnBasicDesignGreen">
+              Register
+            </button>
+            <button
+              className="btnBasicDesign"
+              onClick={() => {
+                if (specificRole === "staff") {
+                  navigate("/admin/home");
+                } else {
+                  navigate("/home");
+                }
+              }}
             >
-              <option value="user">User</option>
-              <option value="staff">Staff</option>
-            </select>
+              Back
+            </button>
           </div>
-        )}
-        {specificRole === "admin" && (
-          <div>
-            <div className="inputGroup">
-              <label htmlFor="restaurantName">Restaurant Name</label>
-              <input
-                type="text"
-                name="restaurantName"
-                id="restaurantName"
-                onChange={(e) => {
-                  setRestaurantName(e.target.value);
-                }}
-                placeholder="Restaurant Information Here"
-                value={restaurantName}
-              ></input>
-            </div>
-            <div className="inputGroup">
-              <label htmlFor="restaurantDesc">Restaurant Description</label>
-              <input
-                type="text"
-                name="restaurantDesc"
-                id="restaurantDesc"
-                placeholder="Restaurant Description Here"
-                onChange={(e) => {
-                  setRestaurantDesc(e.target.value);
-                }}
-                value={restaurantDesc}
-              ></input>
-            </div>
-          </div>
-        )}
-        <div className="button-container d-flex gap-2">
-          <button onClick={registerUser} className="btn btn-warning">
-            Register
-          </button>
-          <button
-            className="btn btn-warning"
-            onClick={() => {
-              if (specificRole === "staff") {
-                navigate("/staff/home");
-              } else if (specificRole === "admin") {
-                navigate("/admin/home");
-              } else {
-                navigate("/home");
-              }
-            }}
-          >
-            Back
-          </button>
         </div>
       </div>
     </div>

@@ -1,16 +1,24 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
-* {
+
+body {
+  background-image: url("systemBackground.jpg");
+  background-size: cover; /* or contain, based on your preference */
+  background-repeat: no-repeat;
+  z-index: 1; /* Add a higher z-index value */
+}
+
+.common * {
   font-family: Montserrat;
   box-sizing: border-box;
   color: #333;
 }
 
-body {
+.common body {
   font-size: 16px;
 }
 
-.card {
+.common .card {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   border-radius: 4px;
   padding: 1rem;
@@ -22,33 +30,32 @@ body {
   transform: translate(-50%, -50%);
 }
 
-.cardHeader {
+.common .cardHeader {
   background: #f7c52a;
   padding: 0.75rem 1.5rem;
   border-radius: 2px;
   text-transform: uppercase;
-  transform: skewY(-4deg);
   font-size: 1.1rem;
   font-weight: bold;
   display: inline-block;
-  position: absolute;
-  top: -1rem;
-  left: -0.75rem;
+  text-align: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
-.cardBody {
+
+.common .cardBody {
   margin-top: 2rem;
 }
 
-.inputGroup {
+.common .inputGroup {
   margin-bottom: 1rem;
 }
 
-label {
+.common label {
   font-size: 0.9rem;
 }
 
-input {
+.common input {
   border: none;
   padding: 0.5rem 0.1rem;
   width: 100%;
@@ -57,12 +64,11 @@ input {
   transition: all 0.5s;
 }
 
-input:focus {
+.common input:focus {
   border-bottom: 1px solid #ccc;
 }
 
-button {
-  background: #f7c52a;
+.common button {
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 2px;
@@ -70,24 +76,312 @@ button {
   text-transform: uppercase;
 }
 
-.chatrooms {
+.common .link {
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 2px;
+  width: 100%;
+  text-transform: uppercase;
+}
+
+.common .chatrooms {
   margin-top: 1rem;
 }
 
-.chatroom {
+.common .chatroom {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.join {
+.common .join {
   background: #f7c52a;
   padding: 0.25rem 1rem;
   border-radius: 2px;
 }
 
-a {
+.common a {
   text-decoration: none;
   color: #333;
+}
+.common
+.customDatePickerWidth, 
+.customDatePickerWidth > div.react-datepicker-wrapper, 
+.customDatePickerWidth > div > div.react-datepicker__input-container
+.customDatePickerWidth > div > div.react-datepicker__input-container input {
+   width: 100%;
+}
+.customDatePickerWidth .react-datepicker-popper {
+  width: 200%; /* Adjust the width value */
+}
+
+.common .btnBasicDesign {
+  align-items: center;
+  background-color: #15b2d9;
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter,sans-serif;
+  font-size: 16px;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.common .btnBasicDesign:after {
+  background-color: #111111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(8px, 8px);
+  transition: transform .2s ease-out;
+  z-index: -1;
+}
+
+.common .btnBasicDesign:hover:after {
+  transform: translate(-8px, 8px);
+}
+
+.common .btnBasicDesign:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+.common .btnBasicDesign:hover {
+  background-color: #d01313;
+  outline: 0;
+  color: white;
+}
+
+.common .btnBasicDesignGreen {
+  align-items: center;
+  background-color: #27d02d;
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter,sans-serif;
+  font-size: 16px;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.common .btnBasicDesignGreen:after {
+  background-color: #111111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(8px, 8px);
+  transition: transform .2s ease-out;
+  z-index: -1;
+}
+
+.common .btnBasicDesignGreen:hover:after {
+  transform: translate(-8px, 8px);
+}
+
+.common .btnBasicDesignGreen:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+.common .btnBasicDesignGreen:hover {
+  background-color: #d01313;
+  outline: 0;
+  color: white;
+}
+
+.common .btnBasicDesignOrange {
+  align-items: center;
+  background-color: #ec6c0b;
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter,sans-serif;
+  font-size: 16px;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.common .btnBasicDesignOrange:after {
+  background-color: #111111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(8px, 8px);
+  transition: transform .2s ease-out;
+  z-index: -1;
+}
+
+.common .btnBasicDesignOrange:hover:after {
+  transform: translate(-8px, 8px);
+}
+
+.common .btnBasicDesignOrange:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+.common .btnBasicDesignOrange:hover {
+  background-color: #d01313;
+  outline: 0;
+  color: white;
+}
+
+.common .btnBasicDesignBlue {
+  align-items: center;
+  background-color: #4a8fff;
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter,sans-serif;
+  font-size: 16px;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.common .btnBasicDesignBlue:after {
+  background-color: #111111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(8px, 8px);
+  transition: transform .2s ease-out;
+  z-index: -1;
+}
+
+.common .btnBasicDesignBlue:hover:after {
+  transform: translate(-8px, 8px);
+}
+
+.common .btnBasicDesignBlue:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+.common .btnBasicDesignBlue:hover {
+  background-color: #d01313;
+  outline: 0;
+  color: white;
+}
+
+.common .btnBasicDesignYellow {
+  align-items: center;
+  background-color: #ceef10;
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter,sans-serif;
+  font-size: 16px;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.common .btnBasicDesignYellow:after {
+  background-color: #111111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(8px, 8px);
+  transition: transform .2s ease-out;
+  z-index: -1;
+}
+
+.common .btnBasicDesignYellow:hover:after {
+  transform: translate(-8px, 8px);
+}
+
+.common .btnBasicDesignYellow:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+.common .btnBasicDesignYellow:hover {
+  background-color: #d01313;
+  outline: 0;
+  color: white;
 }
