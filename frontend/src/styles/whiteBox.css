@@ -1,0 +1,17 @@
+.whiteBox .rowdisplay{
+	transition:transform 1s;
+	display:flex;
+	align-items: center;
+  	justify-content: center;
+	color:black;
+	background:lightblue;
+	width:100%;
+	box-shadow: 0 0 10px 3px black;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.whiteBox .rowdisplay:hover{
+	transform:translateY(-10px);
+	background: lightgreen;
+}

@@ -55,8 +55,8 @@ function ProfilePage() {
         if (password.length < 6) {
           makeToast("error", "Password Must Be At Least 6 Character Long");
           getProfile();
-        } else if (username.length < 6) {
-          makeToast("error", "Username Must Be At Least 6 Character Long");
+        } else if (username.length < 2) {
+          makeToast("error", "Username Must Be At Least 2 Character Long");
           getProfile();
         } else {
           const registernewProfile = await fetch(
@@ -84,7 +84,7 @@ function ProfilePage() {
   };
 
   useEffect(() => {
-    socket.on("getSeat", (message) => {
+    const handleGetSeat = (message) => {
       if (message.userId === userId && role === "user") {
         if (message.restaurantId === restaurantId) {
           if (inQueue) {
@@ -93,92 +93,100 @@ function ProfilePage() {
           }
         }
       }
-    });
+    };
+
+    socket.on("getSeat", handleGetSeat);
+
+    return () => {
+      socket.off("getSeat", handleGetSeat);
+    };
   }, []);
 
   return (
-    <div className="card">
-      <div className="cardHeader">Profile</div>
-      <div className="cardBody">
-        <div className="inputGroup">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            value={email}
-            readOnly
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="name">name</label>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            placeholder="John Doe"
-            onChange={(e) => {
-              setUsername(e.target.value);
-            }}
-            value={username}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="password">password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            placeholder="your password"
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-            value={password}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="contact">contact</label>
-          <input
-            type="text"
-            name="contact"
-            id="contact"
-            placeholder="your contact"
-            onChange={(e) => {
-              setContact(e.target.value);
-            }}
-            value={contact}
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="role">role</label>
-          <input
-            type="text"
-            name="role"
-            id="role"
-            value={role}
-            readOnly
-          ></input>
-        </div>
-        <div className="button-container d-flex gap-2">
-          <button onClick={registerUser} className="btn btn-warning">
-            Update
-          </button>
-          <button
-            className="btn btn-warning"
-            onClick={() => {
-              if (role === "staff") {
-                navigate("/staff/home");
-              } else if (role === "admin") {
-                navigate("/admin/home");
-              } else if (role === "user") {
-                navigate("/user/home");
-              } else {
-                navigate("/home");
-              }
-            }}
-          >
-            Back
-          </button>
+    <div className="common">
+      <div className="card">
+        <div className="cardHeader">Profile</div>
+        <div className="cardBody">
+          <div className="inputGroup">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              value={email}
+              readOnly
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="name">name</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              placeholder="John Doe"
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
+              value={username}
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="password">password</label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="your password"
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+              value={password}
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="contact">contact</label>
+            <input
+              type="text"
+              name="contact"
+              id="contact"
+              placeholder="your contact"
+              onChange={(e) => {
+                setContact(e.target.value);
+              }}
+              value={contact}
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="role">role</label>
+            <input
+              type="text"
+              name="role"
+              id="role"
+              value={role}
+              readOnly
+            ></input>
+          </div>
+          <div className="button-container d-flex gap-2">
+            <button onClick={registerUser} className="btnBasicDesignGreen">
+              Update
+            </button>
+            <button
+              className="btnBasicDesign"
+              onClick={() => {
+                if (role === "staff") {
+                  navigate("/staff/home");
+                } else if (role === "admin") {
+                  navigate("/admin/home");
+                } else if (role === "user") {
+                  navigate("/user/home");
+                } else {
+                  navigate("/home");
+                }
+              }}
+            >
+              Back
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -23,7 +23,35 @@ function UserPersonalVoucherPage({ voucherAccessType }) {
       );
       const jsonfirst = await response.json();
       if (response.ok) {
-        setPersonalVoucherList(jsonfirst.userVouchers);
+        const vouchersJson = await Promise.all(
+          jsonfirst.userVouchers.map(async (aData) => {
+            const malaysiaTimeOffset = 8 * 60 * 60 * 1000;
+            const voucherDate = new Date(aData.voucherExpiration);
+            const malaysiaVoucherDate = new Date(
+              voucherDate.getTime() +
+                malaysiaTimeOffset +
+                new Date(voucherDate.getTime()).getTimezoneOffset() * 60 * 1000
+            );
+
+            const options = {
+              timeZone: "Asia/Kuala_Lumpur", // Set the desired time zone
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              second: "numeric",
+              timeZoneName: "short",
+            };
+            const readableDateString = malaysiaVoucherDate.toLocaleString(
+              "en-US",
+              options
+            );
+            return { ...aData, malaysiaFormatTime: readableDateString };
+          })
+        );
+
+        setPersonalVoucherList(vouchersJson);
       }
     } else {
       console.log("error");
@@ -34,7 +62,7 @@ function UserPersonalVoucherPage({ voucherAccessType }) {
     getVoucherList();
   }, []);
   useEffect(() => {
-    socket.on("getSeat", (message) => {
+    const handleGetSeat = (message) => {
       if (message.userId === userId && role === "user") {
         if (message.restaurantId === restaurantId) {
           if (inQueue) {
@@ -43,62 +71,70 @@ function UserPersonalVoucherPage({ voucherAccessType }) {
           }
         }
       }
-    });
+    };
+
+    socket.on("getSeat", handleGetSeat);
+
+    return () => {
+      socket.off("getSeat", handleGetSeat);
+    };
   }, []);
   return (
-    <div className="container mt-4 mb-4">
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Information</th>
-            <th scope="col">Acquire Method</th>
-            <th scope="col">Expiration</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {personalVoucherList.map((item, index) => {
-            const foundObject = voucherList.find(
-              (obj) => obj._id === item.voucherId
-            );
+    <div className="common">
+      <div className="container mt-4 mb-4">
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Information</th>
+              <th scope="col">Type</th>
+              <th scope="col">Expiration</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {personalVoucherList.map((item, index) => {
+              const foundObject = voucherList.find(
+                (obj) => obj._id === item.voucherId
+              );
 
-            return (
-              <tr key={item.voucherId}>
-                <th scope="row">{index + 1}</th>
-                <td>{foundObject.voucherInformation}</td>
-                <td>{foundObject.voucherAcquireMethod}</td>
-                <td>{item.voucherExpiration}</td>
-                <td>{item.voucherStatus}</td>
-              </tr>
-            );
-          })}
+              return (
+                <tr key={item.voucherId}>
+                  <th scope="row">{index + 1}</th>
+                  <td>{foundObject.voucherInformation}</td>
+                  <td>{foundObject.voucherAcquireMethod}</td>
+                  <td>{item.malaysiaFormatTime}</td>
+                  <td>{item.voucherStatus}</td>
+                </tr>
+              );
+            })}
 
-          <tr>
-            <td colSpan="8"></td>
-          </tr>
-          <tr>
-            <td colSpan="8">
-              <button
-                className="btn btn-success"
-                onClick={() => {
-                  console.log("voucherAccessType:" + voucherAccessType);
-                  if (voucherAccessType === "notqueue") {
-                    navigate("/user/vouchersPage/" + restaurantId);
-                  } else {
-                    navigate("/user/voucherPage/" + restaurantId);
-                  }
-                }}
-              >
-                Back
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <br />
+            <tr>
+              <td colSpan="8"></td>
+            </tr>
+            <tr>
+              <td colSpan="8">
+                <button
+                  className="btnBasicDesign"
+                  onClick={() => {
+                    console.log("voucherAccessType:" + voucherAccessType);
+                    if (voucherAccessType === "notqueue") {
+                      navigate("/user/vouchersPage/" + restaurantId);
+                    } else {
+                      navigate("/user/voucherPage/" + restaurantId);
+                    }
+                  }}
+                >
+                  Back
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <br />
 
-      <br />
+        <br />
+      </div>
     </div>
   );
 }

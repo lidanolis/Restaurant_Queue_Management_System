@@ -26,47 +26,59 @@ function JoinRestaurantPage() {
   }, []);
 
   return (
-    <div className="container mt-4 mb-4">
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Restaurant Name</th>
-            <th scope="col"></th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {restaurantData.map((item, index) => (
-            <tr key={item._id}>
-              <th scope="row">{index + 1}</th>
-              <td>{item.restaurantName}</td>
-              <td>
-                <Link to={"/user/restaurant/" + item._id}>
-                  <div className="btn btn-success">Join Queue</div>
-                </Link>
-              </td>
-              <td>
-                <Link to={"/user/vouchersPage/" + item._id}>
-                  <div className="btn btn-warning">Vouchers Shop</div>
-                </Link>
+    <div className="common">
+      <div className="container mt-4 mb-4">
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Restaurant Name</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {restaurantData.map((item, index) => (
+              <tr key={item._id}>
+                <th scope="row">{index + 1}</th>
+                <td>{item.restaurantName}</td>
+                <td>
+                  <Link to={"/user/restaurant/" + item._id}>
+                    <div className="link btnBasicDesignOrange">
+                      Enter Restaurant
+                    </div>
+                  </Link>
+                </td>
+                <td>
+                  <Link to={"/user/vouchersPage/" + item._id}>
+                    <div className="link btnBasicDesignGreen">
+                      Vouchers Shop
+                    </div>
+                  </Link>
+                </td>
+                <td>
+                  <Link to={"/user/restaurantMenu/" + item._id}>
+                    <div className="link btnBasicDesignBlue">Menu</div>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            <tr>
+              <td colSpan="5">
+                <button
+                  className="btnBasicDesign"
+                  onClick={() => {
+                    navigate("/user/home");
+                  }}
+                >
+                  Back
+                </button>
               </td>
             </tr>
-          ))}
-          <tr>
-            <td colSpan="4">
-              <button
-                className="btn btn-warning"
-                onClick={() => {
-                  navigate("/user/home");
-                }}
-              >
-                Back
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

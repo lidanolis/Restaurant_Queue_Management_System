@@ -81,13 +81,6 @@ function StaffTableManagePage({ managementFunction }) {
           if (!manageRestaurantTables.ok) {
             console.log("Invalid Credentials");
           } else {
-            if (
-              managementFunction !== "add" &&
-              newTableObject.tableStatus === "available"
-            ) {
-              console.log("assigning seat");
-              assignSeat();
-            }
             console.log(`Restaurant Tables Updated`);
             makeToast("success", `Successful ${managementFunction} action`);
             navigate("/staff/viewTable");
@@ -95,9 +88,6 @@ function StaffTableManagePage({ managementFunction }) {
         }
       });
     }
-  };
-  const assignSeat = async () => {
-    await QueueManagementController(restaurantId, socket, 1);
   };
 
   const modifyTable = async () => {
@@ -124,61 +114,63 @@ function StaffTableManagePage({ managementFunction }) {
     modifyTable();
   }, []);
   return (
-    <div className="card">
-      <div className="cardHeader">Table</div>
-      <div className="cardBody">
-        <div className="inputGroup">
-          <label htmlFor="tableName">table Name</label>
-          <input
-            type="text"
-            name="tableName"
-            id="tableName"
-            onChange={(e) => {
-              setTableName(e.target.value);
-            }}
-            value={tableName}
-            readOnly
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="tableQuantity">table Quantity</label>
-          <input
-            type="text"
-            name="tableQuantity"
-            id="tableQuantity"
-            onChange={(e) => {
-              setTableQuantity(e.target.value);
-            }}
-            value={tableQuantity}
-            readOnly
-          ></input>
-        </div>
-        <div className="inputGroup">
-          <label htmlFor="tableStatus">Role</label>
-          <select
-            name="tableStatus"
-            id="tableStatus"
-            defaultValue={tableStatusRef.current.value}
-            ref={tableStatusRef}
-            className="form-select"
-          >
-            <option value="available">Available</option>
-            <option value="occupied">Occupied</option>
-            <option value="unavailable">Unavailable</option>
-          </select>
-        </div>
-        <div className="button-container d-flex gap-2">
-          <button onClick={manageTable} className="btn btn-warning">
-            {managementFunction}
-          </button>
-          <button
-            className="btn btn-warning"
-            onClick={() => {
-              navigate("/staff/viewTable");
-            }}
-          >
-            Back
-          </button>
+    <div className="common">
+      <div className="card">
+        <div className="cardHeader">Table</div>
+        <div className="cardBody">
+          <div className="inputGroup">
+            <label htmlFor="tableName">table Name</label>
+            <input
+              type="text"
+              name="tableName"
+              id="tableName"
+              onChange={(e) => {
+                setTableName(e.target.value);
+              }}
+              value={tableName}
+              readOnly
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="tableQuantity">table Quantity</label>
+            <input
+              type="text"
+              name="tableQuantity"
+              id="tableQuantity"
+              onChange={(e) => {
+                setTableQuantity(e.target.value);
+              }}
+              value={tableQuantity}
+              readOnly
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label htmlFor="tableStatus">Table Availability</label>
+            <select
+              name="tableStatus"
+              id="tableStatus"
+              defaultValue={tableStatusRef.current.value}
+              ref={tableStatusRef}
+              className="form-select"
+            >
+              <option value="available">Available</option>
+              <option value="occupied">Occupied</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+          </div>
+          <div className="button-container d-flex gap-2">
+            <button onClick={manageTable} className="btnBasicDesignOrange">
+              {managementFunction}
+            </button>
+            <button
+              className="btnBasicDesign"
+              onClick={() => {
+                navigate("/staff/viewTable");
+              }}
+            >
+              Back
+            </button>
+          </div>
         </div>
       </div>
     </div>

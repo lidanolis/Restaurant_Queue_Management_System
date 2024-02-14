@@ -4,6 +4,7 @@ const User = require("../model/User");
 const Staff = require("../model/Staff");
 const Book = require("../model/Booking");
 const Customer = require("../model/Customer");
+const RestaurantImage = require("../model/RestaurantImage");
 
 const getRestaurants = async (req, res) => {
   const resultList = await Restaurant.find({}).sort({ restaurantName: 1 });
@@ -26,7 +27,7 @@ const createNewBooking = async (req, res) => {
   const { userId, restaurantId, quantity, status, tableName, BookedTime } =
     req.body;
   const malaysiaTimeOffset = 8 * 60 * 60 * 1000;
-  const malaysiaTime = new Date(
+  var malaysiaTime = new Date(
     new Date(BookedTime).getTime() + malaysiaTimeOffset
   );
   try {
@@ -59,7 +60,7 @@ const getBookingForRestaurant = async (req, res) => {
   console.log("end time: " + endOfDay);
   const result = await Book.find({
     restaurantId: restaurantId,
-    status: "Pending",
+    status: { $in: ["Pending", "Book"] },
     BookedTime: {
       $gte: currentDate,
       $lte: endOfDay,
@@ -265,6 +266,82 @@ const updateCustomerPoints = async (req, res) => {
   }
 };
 
+const getRestaurantMenu = async (req, res) => {
+  const { restaurantId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  const json = await RestaurantImage.find({
+    restaurantId: restaurantId,
+    stringType: "menu",
+  });
+  if (!json) {
+    res.status(500).json({ mssg: "error" });
+  }
+  res.status(200).json(json);
+};
+
+const updateBookingQuantity = async (req, res) => {
+  const { id } = req.params;
+  const { newTableQuantity } = req.body;
+  try {
+    const updatedBooking = await Book.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $set: { quantity: newTableQuantity },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedBooking) {
+      console.log("Booking not updated");
+      return res.status(500).json({ mssg: "error" });
+    }
+    return res.status(200).json(updatedBooking);
+  } catch (error) {
+    console.error("Error updating Booking:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const checkAllRestaurantSeats = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const restaurant = await Restaurant.findOne({
+      restaurantTable: {
+        $elemMatch: { userId: userId },
+      },
+    });
+
+    if (!restaurant) {
+      return res.status(404).json({ mssg: "Seat not found" });
+    }
+
+    res.status(200).json(restaurant);
+  } catch (error) {
+    console.error("Error getting Seat:", error);
+    res.status(500).json({ mssg: "error" });
+  }
+};
+
+const getBookingForUser = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  const result = await Book.find({
+    userId: id,
+    status: "Book",
+  }).sort({ BookedTime: 1 });
+
+  if (!result) {
+    res.status(500).json({ mssg: "error" });
+  }
+  res.status(200).json(result);
+};
+
 module.exports = {
   getRestaurants,
   getARestaurant,
@@ -278,4 +355,8 @@ module.exports = {
   addVoucherToCustomer,
   updateCustomerVoucher,
   updateCustomerPoints,
+  getRestaurantMenu,
+  updateBookingQuantity,
+  checkAllRestaurantSeats,
+  getBookingForUser,
 };

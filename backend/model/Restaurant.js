@@ -15,6 +15,7 @@ const chatbotSequenceSchema = new Schema({
   questionPair: { type: String, required: true },
   answerPair: { type: String, required: true },
   pathPair: { type: String, required: true },
+  usePair: { type: Boolean, required: true },
 });
 
 const restaurantSchema = new Schema(
@@ -27,6 +28,9 @@ const restaurantSchema = new Schema(
     waitingGameTimeType: { type: String },
     waitingGamePointsGiven: { type: Number },
     actionGamePointsGiven: { type: Number },
+    restaurantStatus: { type: String },
+    estimatedWaitTime: { type: Number },
+    estimatedWaitTimeFormat: { type: String },
   },
   { timestamps: true }
 );

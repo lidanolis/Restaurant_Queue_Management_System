@@ -42,61 +42,63 @@ function AdminTablePage() {
   }, []);
 
   return (
-    <div className="container mt-4 mb-4">
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Restaurant Table</th>
-            <th scope="col">Table Quantity</th>
-            <th scope="col">Table Status</th>
-            <th scope="col"></th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {restaurantTable.map((item, index) => (
-            <tr key={item.tableName}>
-              <th scope="row">{index + 1}</th>
-              <td>{item.tableName}</td>
-              <td>{item.tableQuantity}</td>
-              <td>{item.tableStatus}</td>
-              <td>
-                <Link to={"/admin/modifyRestaurantTable/" + item.tableName}>
-                  <div className="btn btn-success">Modify</div>
-                </Link>
+    <div className="common">
+      <div className="container mt-4 mb-4">
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Restaurant Table</th>
+              <th scope="col">Table Quantity</th>
+              <th scope="col">Table Status</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {restaurantTable.map((item, index) => (
+              <tr key={item.tableName}>
+                <th scope="row">{index + 1}</th>
+                <td>{item.tableName}</td>
+                <td>{item.tableQuantity}</td>
+                <td>{item.tableStatus}</td>
+                <td>
+                  <Link to={"/admin/modifyRestaurantTable/" + item.tableName}>
+                    <div className="link btnBasicDesign">Modify</div>
+                  </Link>
+                </td>
+                <td>
+                  <Link to={"/admin/removeRestaurantTable/" + item.tableName}>
+                    <div className="link btnBasicDesignOrange">Remove</div>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            <tr>
+              <td colSpan="3">
+                {" "}
+                <button
+                  className="btnBasicDesign"
+                  onClick={() => {
+                    quitQueue();
+                    navigate("/admin/home");
+                  }}
+                >
+                  Back
+                </button>
               </td>
-              <td>
-                <Link to={"/admin/removeRestaurantTable/" + item.tableName}>
-                  <div className="btn btn-danger">Remove</div>
-                </Link>
+              <td colSpan="3">
+                <div style={{ width: "100%" }}>
+                  <Link to={"/admin/addRestaurantTable/0"}>
+                    <div className="link btnBasicDesignGreen">Add Table</div>
+                  </Link>
+                </div>
               </td>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <br />
-      <div style={{ width: "100%" }}>
-        <button
-          style={{ width: "48%", margin: "5px" }}
-          className="btn btn-warning"
-          onClick={() => {
-            quitQueue();
-            navigate("/admin/home");
-          }}
-        >
-          Back
-        </button>
-        <Link to={"/admin/addRestaurantTable/0"}>
-          <div
-            className="btn btn-warning"
-            style={{ width: "48%", margin: "5px" }}
-          >
-            Add Table
-          </div>
-        </Link>
+          </tbody>
+        </table>
+        <br />
       </div>
-      <br />
     </div>
   );
 }

@@ -12,6 +12,10 @@ const {
   addVoucherToCustomer,
   updateCustomerVoucher,
   updateCustomerPoints,
+  getRestaurantMenu,
+  updateBookingQuantity,
+  checkAllRestaurantSeats,
+  getBookingForUser,
 } = require("../controller/userController");
 
 router.get("/getRestaurant", getRestaurants);
@@ -26,4 +30,9 @@ router.post("/createNewCustomer", createNewCustomer);
 router.post("/addVoucherToCustomer", addVoucherToCustomer);
 router.post("/updateCustomerVoucher", updateCustomerVoucher);
 router.post("/updateCustomerPoints", updateCustomerPoints);
+router.get("/getRestaurantMenu/:restaurantId", getRestaurantMenu);
+router.post("/updateBookingQuantity/:id", updateBookingQuantity);
+router.get("/checkRestaurantSeats/:userId", checkAllRestaurantSeats);
+router.get("/getAllCustomerBookings/:id", getBookingForUser);
+
 module.exports = router;

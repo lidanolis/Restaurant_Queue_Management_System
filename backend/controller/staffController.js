@@ -3,7 +3,7 @@ const Restaurant = require("../model/Restaurant");
 const User = require("../model/User");
 const Staff = require("../model/Staff");
 const Voucher = require("../model/Voucher");
-
+const RestaurantImage = require("../model/RestaurantImage");
 const getAVoucher = async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -46,6 +46,9 @@ const createRestaurant = async (req, res) => {
       waitingGameTimeType: "minute",
       waitingGamePointsGiven: 1,
       actionGamePointsGiven: 1,
+      restaurantStatus: "open",
+      estimatedWaitTimeInMinutes: 5,
+      estimatedWaitTimeFormat: "minute",
     });
     res.status(200).json(newRestaurant);
   } catch (err) {
@@ -127,11 +130,6 @@ const updateTable = async (req, res) => {
     tableStatus,
     userId,
   };
-  console.log("restaurant Id" + id);
-  console.log("table name" + tableName);
-  console.log("table Quantity" + tableQuantity);
-  console.log("table Status" + tableStatus);
-  console.log("userId" + userId);
 
   try {
     const updatedRestaurant = await Restaurant.findOneAndUpdate(
@@ -290,6 +288,195 @@ const updateRestaurantGame = async (req, res) => {
   }
 };
 
+const addChatbotMessage = async (req, res) => {
+  const { id } = req.params;
+  const { questionPair, answerPair, pathPair, usePair } = req.body;
+  const newMessageObject = {
+    questionPair: questionPair,
+    answerPair: answerPair,
+    pathPair: pathPair,
+    usePair: usePair,
+  };
+  try {
+    const newChatbotMessage = await Restaurant.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $push: { chatbotSequence: newMessageObject },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!newChatbotMessage) {
+      console.log("unable to add chatbot message");
+      return res.status(500).json({ mssg: "error" });
+    }
+    return res.status(200).json(newChatbotMessage);
+  } catch (error) {
+    console.error("Error adding Chatbot Message:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const modifyChatbotMessage = async (req, res) => {
+  const { id } = req.params;
+  const { questionPair, answerPair, pathPair, usePair, chatbotId } = req.body;
+  const newMessageObject = {
+    questionPair: questionPair,
+    answerPair: answerPair,
+    pathPair: pathPair,
+    usePair: usePair,
+  };
+  try {
+    const newChatbotMessage = await Restaurant.findOneAndUpdate(
+      {
+        _id: id,
+        "chatbotSequence._id": chatbotId,
+      },
+      {
+        $set: { "chatbotSequence.$": newMessageObject },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!newChatbotMessage) {
+      console.log("unable to add chatbot message");
+      return res.status(500).json({ mssg: "error" });
+    }
+    return res.status(200).json(newChatbotMessage);
+  } catch (error) {
+    console.error("Error adding Chatbot Message:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const removeChatbotMessage = async (req, res) => {
+  const { id } = req.params;
+  const { chatbotId } = req.body;
+  try {
+    const newChatbotMessage = await Restaurant.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $pull: { chatbotSequence: { _id: chatbotId } },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!newChatbotMessage) {
+      console.log("unable to add chatbot message");
+      return res.status(500).json({ mssg: "error" });
+    }
+    return res.status(200).json(newChatbotMessage);
+  } catch (error) {
+    console.error("Error adding Chatbot Message:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const addRestaurantImage = async (req, res) => {
+  const { restaurantId, stringType, imageString } = req.body;
+  try {
+    const newImage = await RestaurantImage.create({
+      restaurantId: restaurantId,
+      imageString: imageString,
+      stringType: stringType,
+    });
+    res.status(200).json(newImage);
+  } catch (err) {
+    res.status(500).json({ mssg: err });
+  }
+};
+
+const getRestaurantMenu = async (req, res) => {
+  const { restaurantId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  const json = await RestaurantImage.find({
+    restaurantId: restaurantId,
+    stringType: "menu",
+  });
+  if (!json) {
+    res.status(500).json({ mssg: "error" });
+  }
+  res.status(200).json(json);
+};
+
+const removeRestaurantMenu = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  const json = await RestaurantImage.findOneAndDelete({
+    _id: id,
+  });
+  if (!json) {
+    res.status(500).json({ mssg: "error" });
+  }
+  res.status(200).json(json);
+};
+
+const updateRestaurantWaitingTime = async (req, res) => {
+  const { id } = req.params;
+  const { estimatedWaitTime, estimatedWaitTimeFormat } = req.body;
+  try {
+    // Find the restaurant by ID and update the restaurant wait time
+    const updatedRestaurant = await Restaurant.findOneAndUpdate(
+      { _id: id },
+      {
+        $set: {
+          estimatedWaitTime: estimatedWaitTime,
+          estimatedWaitTimeFormat: estimatedWaitTimeFormat,
+        },
+      },
+      { new: true } // Return the updated document
+    );
+
+    console.log("Updated Restaurant:", updatedRestaurant);
+    return res.status(200).json(updatedRestaurant);
+  } catch (error) {
+    console.error("Error updating wait time to restaurant:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const updateRestaurantOnOff = async (req, res) => {
+  const { restaurantId, onOffStatus } = req.body;
+  try {
+    // Find the restaurant by ID and update the restaurantTable array
+    const updatedRestaurant = await Restaurant.findOneAndUpdate(
+      { _id: restaurantId },
+      {
+        $set: {
+          restaurantStatus: onOffStatus ? "open" : "closed",
+        },
+      },
+      { new: true } // Return the updated document
+    );
+
+    console.log("Updated Restaurant:", updatedRestaurant);
+    return res.status(200).json(updatedRestaurant);
+  } catch (error) {
+    console.error("Error updating restaurant status:", error);
+    return res.status(500).json({ mssg: "error" });
+  }
+};
+
+const getStaffList = async (req, res) => {
+  const { restaurantId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  const json = await Staff.find({ restaurantId: restaurantId });
+  if (!json) {
+    return res.status(500).json({ mssg: "error" });
+  }
+  return res.status(200).json(json);
+};
+
 module.exports = {
   createRestaurant,
   setStaffRestaurant,
@@ -304,4 +491,13 @@ module.exports = {
   updateVoucher,
   removeVoucher,
   updateRestaurantGame,
+  addChatbotMessage,
+  modifyChatbotMessage,
+  removeChatbotMessage,
+  addRestaurantImage,
+  getRestaurantMenu,
+  removeRestaurantMenu,
+  updateRestaurantWaitingTime,
+  updateRestaurantOnOff,
+  getStaffList,
 };

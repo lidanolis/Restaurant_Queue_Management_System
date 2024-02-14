@@ -13,6 +13,7 @@ function UserSeatPage() {
     chosenGame,
     waitingPoints,
   } = useContext(UserContext);
+
   const [counter, setCounter] = useState(0);
   const [newPoints, setNewPoints] = useState(0);
   const [waitingGameTimeType, setWaitingGameTimeType] = useState("");
@@ -110,7 +111,15 @@ function UserSeatPage() {
         setWaitingGameTimeType(waitingGameTimeTypeRef);
         addPointsToCustomer(parseInt(newPointsTallied, 10));
       } else {
+        console.log("triggered action game");
         setCounter(currentTime("minute"));
+        setWaitingGameTimeType("minute");
+        var newPointsTallied = 0;
+        if (waitingPoints > 0) {
+          newPointsTallied = waitingPoints * actionGamePointsGiven;
+        }
+        setNewPoints(parseInt(newPointsTallied, 10));
+        addPointsToCustomer(parseInt(newPointsTallied, 10));
       }
     });
   }, []);
@@ -123,20 +132,58 @@ function UserSeatPage() {
   const pageParams = useParams();
   const tableName = pageParams.tableName;
   return (
-    <div>
-      <div>Thank You For Waiting, Please Proceed To Table {tableName}</div>
-      <div>
-        You Have Waited For A Total Of {counter} {waitingGameTimeType}
+    <div className="common">
+      <div className="card">
+        <div className="cardHeader">Seat</div>
+        <div className="cardBody">
+          <div className="inputGroup">
+            <label>Thank You For Waiting, Please Proceed To:</label>
+          </div>
+          <div className="inputGroup">
+            <input
+              type="text"
+              name="tableName"
+              value={`Restaurant Table:  ${tableName}`}
+              readOnly
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label>You Have Waited For A Total Of:</label>
+            <input
+              type="text"
+              name="gameType"
+              value={`${counter} ${waitingGameTimeType}`}
+              readOnly
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label>You Earned A Total Of:</label>
+            <input
+              type="text"
+              name="gamePoints"
+              value={`${newPoints} Points`}
+              readOnly
+            ></input>
+          </div>
+          <div className="inputGroup">
+            <label style={{ fontSize: "75%", textAlign: "justify" }}>
+              *The Following Seating Is Optimized. If The Seating Is Too Small,
+              You May <strong>Request For Additional Chairs</strong> Or{" "}
+              <strong>Request The Staffs To Reassign Seats</strong>. Thank You.
+            </label>
+          </div>
+          <div>
+            <button
+              className="btnBasicDesign"
+              onClick={() => {
+                navigate("/user/home");
+              }}
+            >
+              Home
+            </button>
+          </div>
+        </div>
       </div>
-      <div>You Earned A Total Of {newPoints} Points</div>
-      <button
-        className="btn btn-warning"
-        onClick={() => {
-          navigate("/user/home");
-        }}
-      >
-        Home
-      </button>
     </div>
   );
 }

@@ -23,6 +23,19 @@ import StaffVoucherManagePage from "./pages/staffVoucherManagePage";
 import UserGameSelectPage from "./pages/userGameSelectPage";
 import UserWaitingGamePage from "./pages/userWaitingGamePage";
 import AdminGameSetupPage from "./pages/adminGameSetupPage";
+import UserActionGamePage from "./pages/userActionGamePage";
+import AdminChatbotManagePage from "./pages/adminChatbotManagePage";
+import UserTableStatusPage from "./pages/userTableStatusPage";
+import AdminMenuPage from "./pages/adminMenuPage";
+import AdminQRcodePage from "./pages/adminQRcodePage";
+import UserRestaurantMenuPage from "./pages/userRestaurantMenuPage";
+import UserSeatBookingPage from "./pages/userSeatBookingPage";
+import UserBookSeatPage from "./pages/userBookSeatPage";
+import UserWaitSeatPage from "./pages/userWaitSeatPage";
+import StaffWaitingTimePage from "./pages/staffWaitingTimePage";
+import UserQueueChangePage from "./pages/userQueueChangePage";
+import StaffSeatUserChangePage from "./pages/staffSeatUserChangePage";
+import UserBookingPages from "./pages/userBookingPage";
 import { useState } from "react";
 import { UserContext } from "./context/userContext";
 import io from "socket.io-client";
@@ -36,6 +49,7 @@ function App() {
   const [waitingPoints, setWaitingPoints] = useState(0);
   const [chosenGame, setChosenGame] = useState("wait");
   const [timeWaited, setTimeWaited] = useState(0);
+  const [restaurantChatbotMessage, setRestaurantChatbotMessage] = useState([]);
   //socket use State above
 
   const [username, setUsername] = useState("");
@@ -101,6 +115,8 @@ function App() {
         setChosenGame,
         timeWaited,
         setTimeWaited,
+        restaurantChatbotMessage,
+        setRestaurantChatbotMessage,
       }}
     >
       <div>
@@ -195,6 +211,24 @@ function App() {
                 element={<AdminChatbotPage></AdminChatbotPage>}
               ></Route>
               <Route
+                path="/admin/addChatbotManage/:id"
+                element={
+                  <AdminChatbotManagePage specificAction="add"></AdminChatbotManagePage>
+                }
+              ></Route>
+              <Route
+                path="/admin/modifyChatbotManage/:id"
+                element={
+                  <AdminChatbotManagePage specificAction="modify"></AdminChatbotManagePage>
+                }
+              ></Route>
+              <Route
+                path="/admin/removeChatbotManage/:id"
+                element={
+                  <AdminChatbotManagePage specificAction="remove"></AdminChatbotManagePage>
+                }
+              ></Route>
+              <Route
                 path="/user/seatPage/:tableName"
                 element={<UserSeatPage></UserSeatPage>}
               ></Route>
@@ -257,8 +291,64 @@ function App() {
                 element={<UserWaitingGamePage></UserWaitingGamePage>}
               ></Route>
               <Route
+                path="/user/customerActionGame"
+                element={<UserActionGamePage></UserActionGamePage>}
+              ></Route>
+              <Route
                 path="/admin/gameSetup"
                 element={<AdminGameSetupPage></AdminGameSetupPage>}
+              ></Route>
+              <Route
+                path="/user/tableStatus/:id"
+                element={<UserTableStatusPage></UserTableStatusPage>}
+              ></Route>
+              <Route
+                path="/admin/QRcode"
+                element={<AdminQRcodePage></AdminQRcodePage>}
+              ></Route>
+              <Route
+                path="/admin/restaurantMenu"
+                element={<AdminMenuPage></AdminMenuPage>}
+              ></Route>
+              <Route
+                path="/user/queueRestaurantMenu/:id"
+                element={
+                  <UserRestaurantMenuPage menuType="queue"></UserRestaurantMenuPage>
+                }
+              ></Route>
+              <Route
+                path="/user/restaurantMenu/:id"
+                element={
+                  <UserRestaurantMenuPage menuType="notqueue"></UserRestaurantMenuPage>
+                }
+              ></Route>
+              <Route
+                path="/user/seatBooking"
+                element={<UserSeatBookingPage></UserSeatBookingPage>}
+              ></Route>
+              <Route
+                path="/user/seatBookFound/:tableName"
+                element={<UserBookSeatPage></UserBookSeatPage>}
+              ></Route>
+              <Route
+                path="/user/seatBookWaiting/:restaurantId"
+                element={<UserWaitSeatPage></UserWaitSeatPage>}
+              ></Route>
+              <Route
+                path="/staff/estimationWaitingTime"
+                element={<StaffWaitingTimePage></StaffWaitingTimePage>}
+              ></Route>
+              <Route
+                path="/user/queueBookingModification"
+                element={<UserQueueChangePage></UserQueueChangePage>}
+              ></Route>
+              <Route
+                path="/staff/staffSeatUserChange/:tableName"
+                element={<StaffSeatUserChangePage></StaffSeatUserChangePage>}
+              ></Route>
+              <Route
+                path="/user/selectingSeatBooking"
+                element={<UserBookingPages></UserBookingPages>}
               ></Route>
             </Routes>
           </div>
